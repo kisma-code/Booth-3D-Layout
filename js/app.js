@@ -16,6 +16,17 @@ const store = {
   del(k) { try { sessionStorage.removeItem(k); } catch { /* storage blocked */ } },
 };
 
+// Tag colour per BU. Unknown BUs get a stable colour from their name.
+const BU_COLORS = { HV: '#ff6b7d', TR: '#ffb347', SV: '#5aa9ff', GI: '#4cd48a', GA: '#b98cff', CASE: '#3fd0d4', HR: '#f78fd0' };
+const BU_FALLBACK = ['#ffd24d', '#7ee0c3', '#ff9a6b', '#9fb4ff', '#e07ef0'];
+function buColor(bu) {
+  const key = String(bu || '').trim().toUpperCase();
+  if (BU_COLORS[key]) return BU_COLORS[key];
+  let h = 0;
+  for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return BU_FALLBACK[h % BU_FALLBACK.length];
+}
+
 // ---------- unlock ----------
 async function loadData(password) {
   const res = await fetch(DATA_URL, { cache: 'no-cache' });
@@ -153,8 +164,10 @@ function start(data, isPreview = false) {
     panelOpen = true;
     controls.unlock();
     setHover(null);
-    $('#p-bu').textContent = p.bu ? `BU · ${p.bu}` : '';
-    $('#p-bu').hidden = !p.bu;
+    const chip = $('#p-bu');
+    chip.textContent = p.bu || '';
+    chip.hidden = !p.bu;
+    chip.style.setProperty('--chip', buColor(p.bu));
     $('#p-en').textContent = p.nameEn || '';
     $('#p-zh').textContent = p.nameZh || '';
     const desc = $('#p-desc');

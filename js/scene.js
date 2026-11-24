@@ -172,7 +172,7 @@ export function buildWorld(data, renderer) {
     center: [1010.2, 458.8],
     len: 200,
     front: { zone: 'A_front', style: 'red', seed: 2, titleY: 9, titleSize: 9, captions: [{ anchor: 'A_front_cabinet', x: 20, w: 160, y: 22, size: 4 }, { anchor: 'A_front_tv', x: 20, w: 160, y: 22, size: 4 }] },
-    back: { zone: 'A_back', style: 'red', seed: 5, brand: { xCm: 14, yCm: 14, sizeCm: 24, maxW: 120 }, titleY: 42, titleSize: 8, captions: [{ anchor: 'A_back_tv', x: 20, w: 160, y: 30, size: 4 }] },
+    back: { zone: 'A_back', style: 'red', seed: 5, titleY: 14, titleSize: 10, captions: [{ anchor: 'A_back_tv', x: 20, w: 160, y: 34, size: 4 }] },
     build(g) {
       tv('A_front_tv', 42, g, -0.495, FLOOR_H + 1.66, 1);
       tv('A_back_tv', 42, g, 0.005, FLOOR_H + 1.66, -1);
@@ -532,7 +532,7 @@ export function buildWorld(data, renderer) {
     const s = new THREE.Sprite(markerMat);
     s.scale.setScalar(0.17);
     // Full-wall graphic: put the marker in the gap between the two TVs.
-    const y = first === 'B_back_panel' ? FLOOR_H + 1.76 : Math.min(info.top + 0.16, 2.55);
+    const y = first === 'B_back_panel' ? FLOOR_H + 1.76 : Math.min(info.top + 0.12, 2.55);
     s.position.set(info.center.x + info.normal.x * 0.08, y, info.center.z + info.normal.z * 0.08);
     s.userData.productId = p.id;
     s.userData.baseY = y;
