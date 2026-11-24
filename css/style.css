@@ -5,7 +5,7 @@
   --muted: #a9adb6;
   --glass: rgba(20, 22, 27, 0.82);
   --line: rgba(255, 255, 255, 0.12);
-  --font: "Helvetica Neue", Helvetica, Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font: "Noto Sans", "Noto Sans TC", "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: #15171b; color: var(--ink); font-family: var(--font); }
@@ -92,13 +92,14 @@ body.touch #hint { left: 160px; right: 12px; transform: none; white-space: norma
   position: relative; width: min(460px, 100%); aspect-ratio: 1.75; min-height: 250px;
   background: linear-gradient(135deg, #ffffff 0%, #ffffff 62%, #fbe9ec 100%); color: #1d1f24;
   border-radius: 14px; padding: 26px 28px 22px 34px; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
-  display: flex; flex-direction: column; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: center; overflow: hidden;
 }
 .bizcard::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--red); }
 .bizcard #card-close { position: absolute; top: 8px; right: 8px; color: #6b7079; }
 .bizcard #card-close:hover { color: #1d1f24; background: rgba(0, 0, 0, 0.06); }
 .bc-brand { color: var(--red); font-weight: 800; font-size: 18px; letter-spacing: 0.02em; }
-.bc-person { margin-top: auto; }
+.bc-brand { margin-bottom: 18px; }
+.bc-person { margin-top: 0; }
 .bc-name { font-size: 22px; font-weight: 700; line-height: 1.25; }
 .bc-name .zh { font-weight: 600; margin-left: 4px; }
 .bc-title { font-size: 14px; color: #4a4f58; margin-top: 2px; }

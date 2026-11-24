@@ -2,7 +2,7 @@
 // All text comes from the (decrypted) booth data, never from this file.
 import * as THREE from 'three';
 
-export const FONT = '"Helvetica Neue", Helvetica, Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif';
+export const FONT = '"Noto Sans", "Noto Sans TC", "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif';
 export const BRAND_RED = '#e60027';
 
 const MAX_TEX = 4096;

@@ -71,12 +71,23 @@ $('#lock-form').addEventListener('submit', async (e) => {
 });
 
 // ---------- main ----------
-function start(data, isPreview = false) {
+// Wall graphics are painted on canvas, so the web fonts must be ready first.
+// Loads every weight for all characters in the data; gives up after 4 s (fallback fonts).
+async function loadFonts(data) {
+  if (!document.fonts?.load) return;
+  const text = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' + JSON.stringify(data);
+  const specs = ['400', '500', '600', '700', '800'].flatMap((w) => [`${w} 16px "Noto Sans"`, `${w} 16px "Noto Sans TC"`]);
+  const all = Promise.all(specs.map((s) => document.fonts.load(s, text).catch(() => null)));
+  await Promise.race([all, new Promise((r) => setTimeout(r, 4000))]);
+}
+
+async function start(data, isPreview = false) {
   const products = data.products || [];
   const byId = new Map(products.map((p) => [p.id, p]));
   const ev = data.event || {};
   document.title = [ev.title, ev.stand].filter(Boolean).join(' · ') || 'Booth 3D';
   $('#loading').hidden = false;
+  await loadFonts(data);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, isTouch ? 1.75 : 2));

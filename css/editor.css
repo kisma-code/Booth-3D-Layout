@@ -1,6 +1,6 @@
 :root {
   --red: #e60027; --red-dark: #b8001f; --bg: #f4f5f7; --card: #fff; --ink: #1d1f24; --muted: #646a75; --line: #dfe2e7;
-  --font: "Helvetica Neue", Helvetica, Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font: "Noto Sans", "Noto Sans TC", "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root { --bg: #15171b; --card: #1f2228; --ink: #eef0f3; --muted: #a2a8b3; --line: #343842; }
