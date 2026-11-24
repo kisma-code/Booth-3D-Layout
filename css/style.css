@@ -52,6 +52,9 @@ kbd { display: inline-block; min-width: 22px; padding: 1px 6px; margin-right: 3p
 #preview-badge { margin-top: 6px; display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #f2b705; color: #111; }
 #list-btn { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 16px; pointer-events: auto; background: var(--glass); border: 1px solid var(--line); padding: 10px 14px; }
 #list-btn:hover { background: rgba(40, 42, 48, 0.9); }
+#list-btn { display: inline-flex; align-items: center; gap: 10px; }
+#list-btn .key-hint { margin: 0; min-width: 22px; padding: 1px 6px; font-size: 12px; font-weight: 700; line-height: 18px; border-radius: 5px; background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.35); }
+body.touch #list-btn .key-hint { display: none; }
 #hint { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); font-size: 12px; color: #d6d8dc; background: rgba(0, 0, 0, 0.4); padding: 6px 12px; border-radius: 20px; white-space: nowrap; max-width: calc(100% - 32px); overflow: hidden; text-overflow: ellipsis; }
 body.touch #hint { left: 160px; right: 12px; transform: none; white-space: normal; text-align: left; border-radius: 12px; bottom: max(24px, env(safe-area-inset-bottom)); }
 
