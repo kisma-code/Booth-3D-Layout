@@ -480,6 +480,120 @@ export function appScreenTexture(variant, title, brand) {
   return toTexture(c);
 }
 
+/** Data-centre corridor: racks with blue lights converging to a vanishing point, red light trail. */
+function paintDataCenter(ctx, w, h, seed = 51, vpX = 0.68, trail = true) {
+  const r = rng(seed);
+  const vx = w * vpX, vy = h * 0.4;
+  const bg = ctx.createRadialGradient(vx, vy, 2, vx, vy, w * 0.75);
+  bg.addColorStop(0, '#3b55d8'); bg.addColorStop(0.25, '#1a2a8c'); bg.addColorStop(1, '#070d3a');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+  // Rack columns on both sides, getting thinner toward the vanishing point
+  for (const side of [-1, 1]) {
+    let d = 1;
+    const edge = side < 0 ? vx : w - vx;
+    for (let i = 0; i < 40 && d > 0.02; i++) {
+      const x0 = vx + side * edge * d, x1 = vx + side * edge * d * 0.86;
+      const top0 = vy - (vy + 10) * d, bot0 = vy + (h - vy) * d * 0.82;
+      const top1 = vy - (vy + 10) * d * 0.86, bot1 = vy + (h - vy) * d * 0.82 * 0.86;
+      ctx.fillStyle = i % 2 ? '#0b1450' : '#0e1a62';
+      ctx.beginPath(); ctx.moveTo(x0, top0); ctx.lineTo(x1, top1); ctx.lineTo(x1, bot1); ctx.lineTo(x0, bot0); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 0.3 * d + 0.05;
+      ctx.beginPath(); ctx.moveTo(x1, top1); ctx.lineTo(x1, bot1); ctx.stroke();
+      // LED dashes
+      const rows = 14;
+      for (let k = 1; k < rows; k++) {
+        if (r() < 0.45) continue;
+        const t = k / rows, ya = top0 + (bot0 - top0) * t, yb = top1 + (bot1 - top1) * t;
+        ctx.strokeStyle = r() < 0.85 ? `rgba(90,200,255,${0.5 + r() * 0.5})` : 'rgba(180,240,255,0.95)';
+        ctx.lineWidth = Math.max(0.15, 0.9 * d);
+        const f0 = 0.15 + r() * 0.3, f1 = f0 + 0.15 + r() * 0.25;
+        ctx.beginPath(); ctx.moveTo(x0 + (x1 - x0) * f0, ya + (yb - ya) * f0); ctx.lineTo(x0 + (x1 - x0) * f1, ya + (yb - ya) * f1); ctx.stroke();
+      }
+      d *= 0.86;
+    }
+  }
+  // Ceiling light strips
+  ctx.strokeStyle = 'rgba(210,235,255,0.85)';
+  for (const a of [-0.5, -0.22, 0.22, 0.5]) {
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(vx + a * 20, vy - 8); ctx.lineTo(vx + a * w * 0.5, -5); ctx.stroke();
+  }
+  // Floor glow
+  const fl = ctx.createLinearGradient(0, vy, 0, h);
+  fl.addColorStop(0, 'rgba(120,150,255,0.35)'); fl.addColorStop(1, 'rgba(40,60,200,0.15)');
+  ctx.fillStyle = fl;
+  ctx.beginPath(); ctx.moveTo(vx - 6, vy + 6); ctx.lineTo(vx + 6, vy + 6); ctx.lineTo(w * 1.1, h); ctx.lineTo(vx - (w - vx) * 1.1, h); ctx.fill();
+  // Red light trail
+  if (trail) {
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.shadowColor = '#ff2a3c';
+    for (let k = 0; k < 7; k++) {
+      ctx.shadowBlur = 4;
+      ctx.strokeStyle = k < 2 ? 'rgba(255,210,215,0.9)' : `rgba(255,${40 + k * 10},${60 + k * 8},0.7)`;
+      ctx.lineWidth = k < 2 ? 0.8 : 1.6;
+      const o = (k - 3) * 2.2;
+      ctx.beginPath();
+      ctx.moveTo(vx + 2, vy + 14 + o * 0.3);
+      ctx.bezierCurveTo(vx - 40 + o, vy + 12, vx - 50 + o, vy + 50 + o, vx - 5 + o, vy + 62 + o * 0.5);
+      ctx.bezierCurveTo(vx + 60 + o, vy + 75, vx + 90 + o, vy + 95, vx + 40 + o, h + 5);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+/** Outside storage wall: data-centre graphic + brand block on the left. */
+export function dataCenterWallTexture(wCm, hCm, brand, lines = [], opts = {}) {
+  const { c, ctx, w, h } = makeCanvas(wCm, hCm, 6);
+  paintDataCenter(ctx, w, h, opts.seed, opts.vpX ?? 0.68, opts.trail ?? true);
+  if (brand) {
+    const size = fitFont(ctx, brand, w * 0.36, 46, 'brand');
+    setFont(ctx, size, 'brand');
+    ctx.fillStyle = '#ffffff'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.shadowColor = 'rgba(0,0,30,0.4)'; ctx.shadowBlur = 2;
+    const x = opts.textX ?? 30, y = opts.textY ?? 38;
+    ctx.fillText(brand, x, y);
+    let ly = y + size * 1.15;
+    lines.forEach((ln, i) => {
+      setFont(ctx, size * 0.27, i === 0 ? '700' : '400');
+      ctx.fillText(ln, x, ly);
+      ly += size * 0.36;
+    });
+    ctx.shadowColor = 'transparent';
+  }
+  return toTexture(c);
+}
+
+/** White corner panel: small vertical brand at the top, booth-number plate. */
+export function cornerPanelTexture(wCm, hCm, brand, stand) {
+  const { c, ctx, w, h } = makeCanvas(wCm, hCm, 6);
+  ctx.fillStyle = '#f6f6f6'; ctx.fillRect(0, 0, w, h);
+  const g = ctx.createLinearGradient(0, 0, w, 0);
+  g.addColorStop(0, 'rgba(0,0,0,0.06)'); g.addColorStop(0.3, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  if (brand) {
+    ctx.save();
+    ctx.translate(w - 12, 10);
+    ctx.rotate(Math.PI / 2);
+    const s = fitFont(ctx, brand, 40, 9, 'brand');
+    setFont(ctx, s, 'brand');
+    ctx.fillStyle = BRAND_RED; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(brand, 0, 0);
+    ctx.restore();
+  }
+  if (stand) {
+    const pw = 38, ph = 14, px = w - pw - 4, py = 62;
+    ctx.fillStyle = '#3f8f2e'; ctx.fillRect(px, py, pw, ph);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(px + 1, py + 1, pw - 2, 3.2);
+    ctx.fillStyle = '#4fa63a'; ctx.fillRect(px + 2, py + 1.7, 8, 1.8);
+    const label = String(stand).replace(/^([A-Za-z]+)\s*(\d)/, '$1 $2');
+    const s = fitFont(ctx, label, pw - 6, 7, '800');
+    textBlock(ctx, label, px + pw / 2, py + 5.6, pw - 4, s, '#ffffff', '800', 1);
+  }
+  return toTexture(c);
+}
+
 /** Small red acrylic product sign. */
 export function signTexture(en, zh) {
   const { c, ctx, w, h } = makeCanvas(26, 11, 16);

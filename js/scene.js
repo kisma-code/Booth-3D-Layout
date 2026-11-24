@@ -332,10 +332,13 @@ export function buildWorld(data, renderer) {
   {
     const c = P(75, 295);
     const front = TX.wallTexture({ wCm: 590, hCm: 240, style: 'red', seed: 12, brand: { text: brand, xCm: 20, yCm: 20, sizeCm: 70, maxW: 330 } });
-    const endTop = TX.wallTexture({ wCm: 150, hCm: 240, style: 'red', seed: 13 });
+    // Corner end (top aisle): white panel with booth number. Outside wall (left aisle): data-centre graphic.
+    const endTop = TX.cornerPanelTexture(150, 240, brand, data.event?.stand);
+    const outside = TX.dataCenterWallTexture(590, 240, brand, [data.brand?.company, data.brand?.tagline].filter(Boolean));
     const endDoor = TX.wallTexture({ wCm: 150, hCm: 240, style: 'red', seed: 14, door: { xCm: 10, wCm: 90, hCm: 200 } });
     const room = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.4, 5.9), [
-      std({ map: front }), M.grey, M.white, M.white, std({ map: endDoor }), std({ map: endTop }),
+      std({ map: front }), std({ map: outside, emissive: 0xffffff, emissiveMap: outside, emissiveIntensity: 0.3 }),
+      M.white, M.white, std({ map: endDoor }), std({ map: endTop, roughness: 0.4 }),
     ]);
     room.position.set(c.x, FLOOR_H + 1.2, c.z);
     scene.add(room);
@@ -345,11 +348,11 @@ export function buildWorld(data, renderer) {
       wCm: 606, hCm: 150, style: 'circuit', seed: 21,
       brand: { text: brand, xCm: 30, yCm: 28, sizeCm: 42, maxW: 260, lines: [data.brand?.company, data.brand?.tagline].filter(Boolean) },
     });
-    const circuitPlain = TX.wallTexture({ wCm: 606, hCm: 150, style: 'circuit', seed: 22 });
+    const boardBack = TX.dataCenterWallTexture(606, 150, '', [], { seed: 52, vpX: 0.5, trail: false });
     const a = { x: -6 + 0.06, z: 2.9 }, b = { x: -4.5, z: -3 + 0.06 };
     const len = Math.hypot(b.x - a.x, b.z - a.z);
     const board = new THREE.Mesh(new THREE.BoxGeometry(len, 1.5, 0.08), [
-      M.white, M.white, M.white, M.white, std({ map: circuitFront, emissive: 0xffffff, emissiveMap: circuitFront, emissiveIntensity: 0.25 }), std({ map: circuitPlain }),
+      M.white, M.white, M.white, M.white, std({ map: circuitFront, emissive: 0xffffff, emissiveMap: circuitFront, emissiveIntensity: 0.25 }), std({ map: boardBack, emissive: 0xffffff, emissiveMap: boardBack, emissiveIntensity: 0.2 }),
     ]);
     board.position.set((a.x + b.x) / 2, FLOOR_H + 2.4 + 0.75, (a.z + b.z) / 2);
     board.rotation.y = Math.atan2(-(b.z - a.z), b.x - a.x);
@@ -487,7 +490,8 @@ export function buildWorld(data, renderer) {
     const edges = [
       [12, 0.012, 0, 3.006], // aisle side (bottom)
       [0.012, 6, 6.006, 0], // aisle side (right)
-      [6.25, 0.012, -1.375, -3.006], // aisle side (top), up to LED room
+      [7.75, 0.012, -2.125, -3.006], // aisle side (top), up to LED room
+      [0.012, 6, -6.006, 0], // aisle side (left, under the storage wall)
     ];
     for (const [w, d, x, z] of edges) {
       const e = new THREE.Mesh(new THREE.BoxGeometry(w, 0.025, d), M.whiteGlow);
