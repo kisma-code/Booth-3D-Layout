@@ -55,16 +55,19 @@ $('#lock-form').addEventListener('submit', async (e) => {
   err.textContent = '';
   btn.disabled = true;
   btn.textContent = 'Opening…';
+  let data;
   try {
-    const data = await loadData(pw);
-    store.set(PW_KEY, pw);
-    $('#lock').hidden = true;
-    start(data);
+    data = await loadData(pw);
   } catch (ex) {
+    console.error(ex);
     err.textContent = ex.message === 'WRONG_PASSWORD' ? 'Wrong password. Try again.' : 'Cannot load the booth data. Reload the page.';
     btn.disabled = false;
     btn.textContent = 'Open booth';
+    return;
   }
+  store.set(PW_KEY, pw);
+  $('#lock').hidden = true;
+  start(data);
 });
 
 // ---------- main ----------
@@ -252,12 +255,15 @@ function start(data, isPreview = false) {
   }
   function highlight(id, on) {
     for (const m of world.productMeshes.get(id) || []) {
-      const mat = m.material, base = m.userData.base;
-      if (mat.isMeshBasicMaterial) mat.opacity = on ? 0.1 : base.opacity;
-      else if (mat.emissiveMap) mat.emissiveIntensity = on ? base.intensity * 1.6 : base.intensity;
-      else if (mat.emissive) {
-        mat.emissive.copy(on ? new THREE.Color(0x5a1a1a) : base.emissive);
-        mat.emissiveIntensity = on ? 1 : base.intensity;
+      for (const mat of Array.isArray(m.material) ? m.material : [m.material]) {
+        const base = mat.userData.base;
+        if (!base) continue;
+        if (mat.isMeshBasicMaterial) mat.opacity = on ? 0.1 : base.opacity;
+        else if (mat.emissiveMap) mat.emissiveIntensity = on ? base.intensity * 1.6 : base.intensity;
+        else if (mat.emissive) {
+          mat.emissive.copy(on ? new THREE.Color(0x5a1a1a) : base.emissive);
+          mat.emissiveIntensity = on ? 1 : base.intensity;
+        }
       }
     }
   }

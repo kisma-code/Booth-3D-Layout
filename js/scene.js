@@ -67,13 +67,14 @@ export function buildWorld(data, renderer) {
     if (!list) productMeshes.set(product.id, (list = []));
     obj.traverse((o) => {
       if (!o.isMesh) return;
-      o.material = o.material.clone();
-      o.userData.productId = product.id;
-      o.userData.base = {
-        emissive: o.material.emissive ? o.material.emissive.clone() : null,
-        intensity: o.material.emissiveIntensity,
-        opacity: o.material.opacity,
+      // A mesh can have one material or one per face. Clone so highlight is per product.
+      const cloneMat = (mat) => {
+        const c = mat.clone();
+        c.userData.base = { emissive: c.emissive ? c.emissive.clone() : null, intensity: c.emissiveIntensity, opacity: c.opacity };
+        return c;
       };
+      o.material = Array.isArray(o.material) ? o.material.map(cloneMat) : cloneMat(o.material);
+      o.userData.productId = product.id;
       clickables.push(o);
       list.push(o);
     });
@@ -105,7 +106,7 @@ export function buildWorld(data, renderer) {
   function model(id, group, x, y, z, rotY, normalLocal, dist = 1.6) {
     const p = anchorProduct.get(id);
     if (!p) return null;
-    const obj = buildModel(p.model || ANCHOR_DEFAULT_MODEL[id]);
+    const obj = buildModel(p.model || ANCHOR_DEFAULT_MODEL[id], { brand });
     if (!obj) return null;
     obj.position.set(x, y, z);
     obj.rotation.y = rotY;
@@ -182,6 +183,15 @@ export function buildWorld(data, renderer) {
       const glass = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.55, 0.6), M.glass);
       glass.position.set(0.425, FLOOR_H + 0.67 + 0.275, 0.65);
       g.add(cab, glass);
+      // Two locked doors on the cabinet front
+      for (const dx of [-0.27, 0.27]) {
+        const door = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.52), new THREE.MeshStandardMaterial({ color: 0xe6e6e7, roughness: 0.5 }));
+        door.position.set(0.425 + dx, FLOOR_H + 0.3, 1.0015);
+        const lock = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.01, 12), M.steel);
+        lock.rotation.x = Math.PI / 2;
+        lock.position.set(0.425 + dx * 0.25, FLOOR_H + 0.48, 1.004);
+        g.add(door, lock);
+      }
       addLocalRect(g, 0.425, 0.65, 1.15, 0.7);
       model('A_front_cabinet', g, 0.425, FLOOR_H + 0.67, 0.65, 0, new THREE.Vector3(0, 0, 1), 1.8);
     },
@@ -256,6 +266,7 @@ export function buildWorld(data, renderer) {
         { anchor: 'C_front_tv1', x: 9.5, w: 93, y: 25, size: 3.3 },
         { anchor: 'C_front_tv2', x: 113.5, w: 93, y: 25, size: 3.3 },
         { anchor: 'C_front_tv3', x: 217.7, w: 93, y: 25, size: 3.3 },
+        { anchor: 'C_front_cabinet', x: 140, w: 180, y: 108, size: 3.4 },
         { anchor: 'C_front_cabinet1', x: 140, w: 60, y: 108, size: 3.2 },
         { anchor: 'C_front_cabinet2', x: 200, w: 60, y: 108, size: 3.2 },
         { anchor: 'C_front_cabinet3', x: 260, w: 60, y: 108, size: 3.2 },
@@ -284,6 +295,7 @@ export function buildWorld(data, renderer) {
       g.add(cab, strip);
       addLocalRect(g, 0.7, 0.75, 1.8, 0.9);
       const top = FLOOR_H + 0.9;
+      model('C_front_cabinet', g, 0.7, top, 0.72, 0, new THREE.Vector3(0, 0, 1), 2.4);
       model('C_front_cabinet1', g, 0.15, top, 0.75, 0, new THREE.Vector3(0, 0, 1));
       model('C_front_cabinet2', g, 0.7, top, 0.75, 0, new THREE.Vector3(0, 0, 1));
       model('C_front_cabinet3', g, 1.25, top, 0.75, 0, new THREE.Vector3(0, 0, 1));

@@ -19,6 +19,7 @@ export const ANCHORS = [
   { id: 'C_front_tv1', label: 'Wall C front – 42" TV (left)' },
   { id: 'C_front_tv2', label: 'Wall C front – 42" TV (middle)' },
   { id: 'C_front_tv3', label: 'Wall C front – 42" TV (right)' },
+  { id: 'C_front_cabinet', label: 'Wall C front – long cabinet, full length', model: 'container-hv' },
   { id: 'C_front_cabinet1', label: 'Wall C front – long cabinet, left', model: 'modules' },
   { id: 'C_front_cabinet2', label: 'Wall C front – long cabinet, middle', model: 'transformer' },
   { id: 'C_front_cabinet3', label: 'Wall C front – long cabinet, right', model: 'container' },
@@ -32,5 +33,5 @@ export const ANCHORS = [
 
 export const MODEL_KINDS = [
   'switchgear', 'laptop', 'vrlaptop', 'sensorbox', 'opencase', 'devices',
-  'modules', 'transformer', 'container', 'cabinet',
+  'modules', 'transformer', 'container', 'container-hv', 'cabinet',
 ];

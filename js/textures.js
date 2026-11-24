@@ -29,6 +29,13 @@ function makeCanvas(wCm, hCm, pxPerCm = 4) {
   return { c, ctx, w: wCm, h: hCm };
 }
 
+/** Paint a texture in centimetre units: draw(ctx, wCm, hCm). */
+export function paintTexture(wCm, hCm, draw, pxPerCm = 10) {
+  const { c, ctx, w, h } = makeCanvas(wCm, hCm, pxPerCm);
+  draw(ctx, w, h);
+  return toTexture(c);
+}
+
 export function toTexture(canvas) {
   const t = new THREE.CanvasTexture(canvas);
   t.colorSpace = THREE.SRGBColorSpace;
