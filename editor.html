@@ -9,117 +9,137 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="css/editor.css?v=20261124073242">
+  <link rel="stylesheet" href="css/editor.css?v=20261124080142">
   <script type="importmap">
     {
       "imports": {
         "three": "./vendor/three.module.min.js",
-        "./js/anchors.js": "./js/anchors.js?v=20261124073242",
-        "./js/app.js": "./js/app.js?v=20261124073242",
-        "./js/controls.js": "./js/controls.js?v=20261124073242",
-        "./js/crypto.js": "./js/crypto.js?v=20261124073242",
-        "./js/editor.js": "./js/editor.js?v=20261124073242",
-        "./js/models.js": "./js/models.js?v=20261124073242",
-        "./js/scene.js": "./js/scene.js?v=20261124073242",
-        "./js/textures.js": "./js/textures.js?v=20261124073242"
+        "./js/anchors.js": "./js/anchors.js?v=20261124080142",
+        "./js/app.js": "./js/app.js?v=20261124080142",
+        "./js/controls.js": "./js/controls.js?v=20261124080142",
+        "./js/crypto.js": "./js/crypto.js?v=20261124080142",
+        "./js/editor.js": "./js/editor.js?v=20261124080142",
+        "./js/models.js": "./js/models.js?v=20261124080142",
+        "./js/scene.js": "./js/scene.js?v=20261124080142",
+        "./js/textures.js": "./js/textures.js?v=20261124080142"
       }
     }
   </script>
 </head>
 <body>
-  <main>
-    <section id="unlock" class="card narrow">
-      <h1>Booth data editor</h1>
-      <p class="muted">Type the <b>editor password</b>. Before publishing is set up, use the visitor password. Passwords never leave your browser.</p>
-      <form id="unlock-form">
-        <input type="text" name="username" value="booth" autocomplete="username" hidden>
-        <input id="pw" type="password" placeholder="Editor password" autocomplete="current-password" required>
-        <button type="submit">Open data</button>
-      </form>
-      <p class="muted small">Or open a plain JSON backup: <input id="plain-file" type="file" accept=".json,application/json"></p>
-      <p id="unlock-error" class="error" role="alert"></p>
-    </section>
+  <!-- Unlock -->
+  <section id="unlock" class="unlock">
+    <div class="mark" aria-hidden="true"></div>
+    <h1>Booth editor</h1>
+    <p class="muted">Type the editor password. Before publishing is set up, use the visitor password.</p>
+    <form id="unlock-form">
+      <input type="text" name="username" value="booth" autocomplete="username" hidden>
+      <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit" aria-label="Open">→</button>
+    </form>
+    <p id="unlock-error" class="error" role="alert"></p>
+    <label class="link small">Open a JSON backup<input id="plain-file" type="file" accept=".json,application/json" hidden></label>
+  </section>
 
-    <section id="editor" hidden>
-      <header class="bar">
-        <h1>Booth data editor</h1>
-        <div class="actions">
-          <button id="preview" type="button" class="ghost">Preview in booth ↗</button>
-          <button id="download" type="button" class="ghost">Download encrypted file</button>
-          <button id="publish" type="button" hidden>Save &amp; publish</button>
-        </div>
-      </header>
+  <!-- Editor -->
+  <div id="editor" hidden>
+    <header class="topbar">
+      <div class="title"><span class="mark sm" aria-hidden="true"></span>Booth editor</div>
       <p id="publish-status" class="status" role="status"></p>
+      <div class="actions">
+        <button id="preview" type="button" class="text">Preview</button>
+        <button id="download" type="button" class="text">Download</button>
+        <button id="publish" type="button" class="primary" hidden>Publish</button>
+      </div>
+    </header>
 
-      <details class="card help" open>
-        <summary>How to publish your changes</summary>
-        <p id="help-publish" hidden>Edit the fields below, check them with <b>Preview in booth</b>, then click <b>Save &amp; publish</b>. The booth shows the change after 1–2 minutes.</p>
-        <ol id="help-manual">
-          <li>Edit the fields below. Use <b>Preview in booth</b> to check them (only you see the preview).</li>
-          <li>Click <b>Download encrypted file</b>. You get <code>booth-data.enc.json</code>.</li>
-          <li>On GitHub, open the repo folder <code>data/</code> → <b>Add file</b> → <b>Upload files</b>. Upload the file (it replaces the old one) and click <b>Commit changes</b>.</li>
-          <li>Wait 1–2 minutes. GitHub Pages then shows the new data.</li>
-        </ol>
-        <p class="muted small">Do not upload the plain JSON backup to GitHub. The repo is public.</p>
-      </details>
+    <div class="layout">
+      <nav class="toc" aria-label="Sections">
+        <a href="#s-event">Event</a>
+        <a href="#s-card">Business card</a>
+        <a href="#s-walls">Walls</a>
+        <a href="#s-products">Products</a>
+        <a href="#s-places">Places</a>
+        <a href="#s-settings">Settings</a>
+      </nav>
 
-      <section class="card">
-        <h2>Visitor password</h2>
-        <p class="muted small">The password visitors type to open the booth. Leave empty to keep it. If you change it, tell your colleagues the new one.</p>
-        <div class="grid2">
-          <label>New password <input id="new-pw" type="password" autocomplete="new-password" minlength="8"></label>
-          <label>Type it again <input id="new-pw2" type="password" autocomplete="new-password"></label>
-        </div>
-      </section>
+      <main>
+        <p id="help-publish" class="hint" hidden>Edit, check with <b>Preview</b>, then <b>Publish</b>. The booth updates in 1–2 minutes.</p>
+        <p id="help-manual" class="hint">Publishing is not set up. <b>Download</b> the file and upload it to <code>data/</code> on GitHub, or set up publishing in <a href="#s-settings">Settings</a>.</p>
 
-      <details class="card" id="setup">
-        <summary><b>Publishing setup (admin)</b> – <span id="setup-state"></span></summary>
-        <ol class="small">
-          <li>On GitHub, open <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>
-          <li>Repository access: <b>Only select repositories</b> → this booth repo. Permissions: <b>Contents: Read and write</b>. Set an expiry date.</li>
-          <li>Copy the token and paste it below. Choose a long editor password (12+ characters, for example 4 random words).</li>
-        </ol>
-        <div class="grid2">
-          <label>GitHub token <input id="gh-token" type="password" autocomplete="off" placeholder="github_pat_… (empty = keep current)"></label>
-          <label>Branch that GitHub Pages serves <input id="gh-branch" type="text" placeholder="found automatically if empty"></label>
-          <label>Repo owner <input id="gh-owner" type="text"></label>
-          <label>Repo name <input id="gh-repo" type="text"></label>
-          <label>Editor password <input id="ed-pw" type="password" autocomplete="new-password" placeholder="empty = keep current"></label>
-          <label>Type it again <input id="ed-pw2" type="password" autocomplete="new-password"></label>
-        </div>
-        <p><button id="setup-save" type="button">Save publishing settings</button></p>
-        <p class="muted small">The token and the visitor password are stored in the repo encrypted with the editor password. Only the editor password can open them. If you forget the editor password, delete <code>data/editor-key.enc.json</code> on GitHub and do this setup again.</p>
-      </details>
+        <section id="s-event">
+          <h2>Event &amp; brand</h2>
+          <div class="grid2" id="meta"></div>
+        </section>
 
-      <section class="card">
-        <h2>Event &amp; brand</h2>
-        <div class="grid2" id="meta"></div>
-      </section>
+        <section id="s-card">
+          <h2>Business card</h2>
+          <p class="muted small">Shown when a visitor clicks “Contact sales”.</p>
+          <div class="grid2" id="card-fields"></div>
+        </section>
 
-      <section class="card">
-        <h2>Wall titles</h2>
-        <div id="zones"></div>
-      </section>
+        <section id="s-walls">
+          <h2>Walls</h2>
+          <div id="zones"></div>
+        </section>
 
-      <section class="card">
-        <div class="row-head">
-          <h2>Products</h2>
-          <button id="add-product" type="button" class="ghost">+ Add product</button>
-        </div>
-        <p class="muted small">"Places" sets where the product shows in the booth (see the list at the bottom). The first place gets the (i) marker. A product with no place is hidden.</p>
-        <div id="products"></div>
-      </section>
+        <section id="s-products">
+          <div class="row-head">
+            <h2>Products</h2>
+            <button id="add-product" type="button" class="text">+ Add</button>
+          </div>
+          <p class="muted small">The first place gets the (i) marker. A product with no place is hidden.</p>
+          <div id="products" class="list"></div>
+        </section>
 
-      <section class="card">
-        <h2>Places in the booth</h2>
-        <table id="anchor-table"><thead><tr><th>Place id</th><th>Where</th><th>Used by</th></tr></thead><tbody></tbody></table>
-      </section>
+        <section id="s-places">
+          <details>
+            <summary><h2>Places in the booth</h2></summary>
+            <table id="anchor-table"><thead><tr><th>Place id</th><th>Where</th><th>Used by</th></tr></thead><tbody></tbody></table>
+          </details>
+        </section>
 
-      <footer class="bar bottom">
-        <button id="download-plain" type="button" class="ghost">Download plain JSON backup (keep private)</button>
-      </footer>
-    </section>
-  </main>
-  <script type="module" src="js/editor.js?v=20261124073242"></script>
+        <section id="s-settings">
+          <h2>Settings</h2>
+
+          <details class="sub">
+            <summary>Visitor password</summary>
+            <p class="muted small">Leave empty to keep it. A new password takes effect when you publish or download. Tell your colleagues the new one.</p>
+            <div class="grid2">
+              <label>New password <input id="new-pw" type="password" autocomplete="new-password" minlength="8"></label>
+              <label>Type it again <input id="new-pw2" type="password" autocomplete="new-password"></label>
+            </div>
+          </details>
+
+          <details class="sub" id="setup">
+            <summary>Publishing <span id="setup-state" class="pill"></span></summary>
+            <ol class="small steps">
+              <li>GitHub → <b>Settings → Developer settings → Fine-grained tokens → Generate new token</b>.</li>
+              <li>Only this repo. Permission <b>Contents: Read and write</b>. Set an expiry date.</li>
+              <li>Paste the token below and choose a long editor password (12+ characters).</li>
+            </ol>
+            <div class="grid2">
+              <label>GitHub token <input id="gh-token" type="password" autocomplete="off" placeholder="empty = keep current"></label>
+              <label>Branch <input id="gh-branch" type="text" placeholder="found automatically"></label>
+              <label>Repo owner <input id="gh-owner" type="text"></label>
+              <label>Repo name <input id="gh-repo" type="text"></label>
+              <label>Editor password <input id="ed-pw" type="password" autocomplete="new-password" placeholder="empty = keep current"></label>
+              <label>Type it again <input id="ed-pw2" type="password" autocomplete="new-password"></label>
+            </div>
+            <p><button id="setup-save" type="button" class="primary">Save settings</button></p>
+            <p class="muted small">Stored in the repo, encrypted with the editor password. Forgot it? Delete <code>data/editor-key.enc.json</code> on GitHub and set up again.</p>
+          </details>
+
+          <details class="sub">
+            <summary>Backup</summary>
+            <p class="muted small">The backup is not encrypted. Keep it on your computer. Never upload it to GitHub.</p>
+            <p><button id="download-plain" type="button" class="text">Download plain JSON</button></p>
+          </details>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="js/editor.js?v=20261124080142"></script>
 </body>
 </html>

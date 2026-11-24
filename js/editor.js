@@ -154,7 +154,8 @@ function renderMode() {
   $('#help-publish').hidden = !publish;
   $('#help-manual').hidden = publish;
   $('#setup').open = !publish;
-  $('#setup-state').textContent = publish ? `on (${gh.owner}/${gh.repo}, branch ${gh.branch})` : 'not set up';
+  $('#setup-state').textContent = publish ? `On · ${gh.branch}` : 'Off';
+  $('#setup-state').title = publish ? `${gh.owner}/${gh.repo}, branch ${gh.branch}` : '';
   const loc = location.hostname.endsWith('.github.io')
     ? { owner: location.hostname.split('.')[0], repo: location.pathname.split('/')[1] || '' }
     : { owner: '', repo: '' };
@@ -181,12 +182,14 @@ function renderMeta() {
     field('Brand (ring sign, walls)', data.brand, 'name'),
     field('Company line', data.brand, 'company'),
     field('Tagline', data.brand, 'tagline'),
-    field('Business card – name (English)', data.contact, 'nameEn'),
-    field('Business card – name (Chinese)', data.contact, 'nameZh'),
-    field('Business card – job title (English)', data.contact, 'titleEn'),
-    field('Business card – job title (Chinese)', data.contact, 'titleZh'),
-    field('Business card – mobile', data.contact, 'mobile'),
-    field('Business card – email', data.contact, 'email'),
+  );
+  $('#card-fields').replaceChildren(
+    field('Name (English)', data.contact, 'nameEn'),
+    field('Name (Chinese)', data.contact, 'nameZh'),
+    field('Job title (English)', data.contact, 'titleEn'),
+    field('Job title (Chinese)', data.contact, 'titleZh'),
+    field('Mobile', data.contact, 'mobile'),
+    field('Email', data.contact, 'email'),
   );
 }
 
@@ -218,35 +221,45 @@ function renderProducts() {
   const box = $('#products');
   box.replaceChildren();
   data.products.forEach((p, i) => {
-    const title = el('strong', {}, p.nameEn || '(new product)');
+    const title = el('span', { class: 'p-name' }, p.nameEn || 'New product');
+    const bu = el('span', { class: 'p-bu' }, p.bu || '—');
+    const meta = el('span', { class: 'p-meta' });
+    const setMeta = () => { const n = (p.anchors || []).length; meta.textContent = n ? `${n} place${n > 1 ? 's' : ''}` : 'hidden'; };
+    setMeta();
     const anchorsProxy = { v: (p.anchors || []).join(', ') };
-    const anchorsField = field('Places (place ids, comma separated)', anchorsProxy, 'v', { placeholder: 'e.g. C_front_cabinet1, C_front_tv1' });
+    const anchorsField = field('Places', anchorsProxy, 'v', { placeholder: 'e.g. C_front_cabinet1, C_front_tv1' });
     const anchorsInput = anchorsField.querySelector('input');
     anchorsInput.setAttribute('list', 'anchor-ids');
     anchorsInput.addEventListener('change', () => {
       const known = new Set(ANCHORS.map((a) => a.id));
       p.anchors = anchorsProxy.v.split(/[,\s]+/).map((s) => s.trim()).filter((s) => known.has(s));
       anchorsInput.value = p.anchors.join(', ');
+      setMeta();
       renderAnchors();
     });
     const model = el('select', {}, el('option', { value: '' }, '(default for the place)'), ...MODEL_KINDS.map((k) => el('option', { value: k }, k)));
     model.value = p.model || '';
     model.addEventListener('change', () => { p.model = model.value || undefined; });
 
-    box.append(el('div', { class: 'product' },
-      el('div', { class: 'top' }, title,
-        el('button', { type: 'button', class: 'danger', onclick: () => {
-          if (confirm(`Delete "${p.nameEn}"?`)) { data.products.splice(i, 1); renderProducts(); renderAnchors(); }
-        } }, 'Delete')),
-      el('div', { class: 'grid2' },
-        field('Name (English)', p, 'nameEn', { onChange: () => { title.textContent = p.nameEn || '(new product)'; } }),
-        field('Name (Chinese)', p, 'nameZh'),
-        field('BU', p, 'bu'),
-        field('Product page link (https://…)', p, 'link'),
+    const item = el('details', { class: 'product' },
+      el('summary', {}, title, bu, meta),
+      el('div', { class: 'p-body' },
+        el('div', { class: 'grid2' },
+          field('Name (English)', p, 'nameEn', { onChange: () => { title.textContent = p.nameEn || 'New product'; } }),
+          field('Name (Chinese)', p, 'nameZh'),
+          field('BU', p, 'bu', { onChange: () => { bu.textContent = p.bu || '—'; } }),
+          field('Product page link', p, 'link', { placeholder: 'https://…' }),
+        ),
+        field('Description', p, 'description', { textarea: true, placeholder: 'Empty = “Product description coming soon.”' }),
+        el('div', { class: 'grid2' }, anchorsField, el('label', {}, '3D model shape', model)),
+        el('div', { class: 'p-foot' },
+          el('button', { type: 'button', class: 'danger', onclick: () => {
+            if (confirm(`Delete "${p.nameEn || 'this product'}"?`)) { data.products.splice(i, 1); renderProducts(); renderAnchors(); }
+          } }, 'Delete product')),
       ),
-      field('Description (shown in the detail panel; empty = "coming soon")', p, 'description', { textarea: true }),
-      el('div', { class: 'grid2' }, anchorsField, el('label', {}, '3D model shape', model)),
-    ));
+    );
+    if (p._open) { item.open = true; delete p._open; }
+    box.append(item);
   });
   if (!$('#anchor-ids')) document.body.append(el('datalist', { id: 'anchor-ids' }, ...ANCHORS.map((a) => el('option', { value: a.id }, a.label))));
 }
@@ -262,9 +275,9 @@ $('#add-product').addEventListener('click', () => {
   const base = 'new-product';
   let id = base, n = 1;
   while (data.products.some((p) => p.id === id)) id = `${base}-${++n}`;
-  data.products.push({ id, nameEn: '', nameZh: '', bu: '', description: '', link: '', anchors: [] });
+  data.products.push({ id, nameEn: '', nameZh: '', bu: '', description: '', link: '', anchors: [], _open: true });
   renderProducts();
-  $('#products').lastElementChild.scrollIntoView({ behavior: 'smooth' });
+  $('#products').lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
 // ---------- output ----------
@@ -276,6 +289,7 @@ function cleaned() {
     while (seen.has(p.id)) p.id += '-2';
     seen.add(p.id);
     if (!p.model) delete p.model;
+    delete p._open;
   }
   return out;
 }
@@ -331,7 +345,7 @@ $('#publish').addEventListener('click', async () => {
       $('#new-pw').value = $('#new-pw2').value = '';
       status('Published with the NEW visitor password. The booth updates in 1–2 minutes. Tell your colleagues the new password.', 'ok');
     } else {
-      status(`Published at ${new Date().toLocaleTimeString()}. The booth updates in 1–2 minutes.`, 'ok');
+      status(`Published ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · live in 1–2 min`, 'ok');
     }
   } catch (e) {
     status(`Not published: ${explain(e)}`, 'bad');
@@ -378,7 +392,7 @@ $('#setup-save').addEventListener('click', async () => {
     editorPassword = edPw;
     $('#gh-token').value = $('#ed-pw').value = $('#ed-pw2').value = '';
     renderMode();
-    status(`Publishing is set up (branch ${cfg.branch}). From now on, open the editor with the editor password.`, 'ok');
+    status(`Publishing is on (branch ${cfg.branch}). Next time, use the editor password.`, 'ok');
   } catch (e) {
     status(`Setup not saved: ${explain(e)}`, 'bad');
   } finally {
