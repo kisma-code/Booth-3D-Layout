@@ -59,6 +59,7 @@ function openEditor() {
   data.event ||= {};
   data.zones ||= {};
   data.products ||= [];
+  data.contact ||= {};
   $('#unlock').hidden = true;
   $('#editor').hidden = false;
   if (!password) $('#new-pw').required = true;
@@ -83,6 +84,7 @@ function renderMeta() {
     field('Brand (ring sign, walls)', data.brand, 'name'),
     field('Company line', data.brand, 'company'),
     field('Tagline', data.brand, 'tagline'),
+    field('Sales email ("Contact sales" button)', data.contact, 'salesEmail', { placeholder: 'name@company.com' }),
   );
 }
 

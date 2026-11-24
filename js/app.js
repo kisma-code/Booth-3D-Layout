@@ -190,6 +190,21 @@ function start(data, isPreview = false) {
     const ok = /^https:\/\//.test(p.link || '');
     link.hidden = !ok;
     if (ok) link.href = p.link;
+    // "Contact sales" opens the visitor's mail app; the address comes from the encrypted data.
+    const contact = $('#p-contact');
+    const email = String(data.contact?.salesEmail || '').trim();
+    const emailOk = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(email);
+    contact.hidden = !emailOk;
+    if (emailOk) {
+      const subject = `Inquiry: ${p.nameEn}`;
+      const body = [
+        'Hello,', '',
+        'I would like more information about:',
+        p.nameZh ? `${p.nameEn} / ${p.nameZh}` : p.nameEn, '',
+        `(Sent from the ${[ev.title, ev.stand && `booth ${ev.stand}`].filter(Boolean).join(', ')} 3D tour)`,
+      ].join('\n');
+      contact.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
     $('#panel').hidden = false;
     $('#panel-close').focus({ preventScroll: true });
     refreshOverlay();
