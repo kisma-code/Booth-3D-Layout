@@ -25,15 +25,30 @@ Visitors walk through the booth (first-person view) and click products to see th
 2. **Source**: *Deploy from a branch*. Select the branch with this code and the folder `/ (root)`. Click **Save**.
 3. After 1–2 minutes the page shows the site address (`https://<owner>.github.io/<repo>/`). Share it with the password.
 
-## Change product descriptions (no coding)
+## Change the booth text (no coding)
 
-1. Open `https://<owner>.github.io/<repo>/editor.html` and type the password.
-2. Edit names, descriptions, links, wall titles, or where each product stands.
-   Click **Preview in booth** to check (only you see the preview).
-3. Click **Download encrypted file** → you get `booth-data.enc.json`.
-   You can also set a new password here.
-4. On GitHub: open the `data/` folder → **Add file** → **Upload files** → drop the file → **Commit changes**.
+The editor is at `https://<owner>.github.io/<repo>/editor.html`.
 
+### One-time setup: publish from the website
+
+1. On GitHub: **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
+   Repository access: **Only select repositories** → this repo. Permissions: **Contents: Read and write**. Set an expiry date.
+2. Open the editor and type the **visitor password** (this works only before setup).
+3. Open **Publishing setup (admin)**. Paste the token, choose a long **editor password** (12+ characters, different from the visitor password), click **Save publishing settings**.
+
+The token, the repo/branch and the visitor password are saved to `data/editor-key.enc.json`, encrypted with the editor password (PBKDF2, 600 000 rounds). The visitor password cannot open it. After setup, the editor accepts only the editor password.
+
+### Every day
+
+1. Open the editor with the **editor password**.
+2. Edit names, descriptions, links, wall titles, the business card, or where each product stands. **Preview in booth** shows the result only to you.
+3. Click **Save & publish**. The booth shows the change after 1–2 minutes.
+
+To change the visitor password, fill **Visitor password** and click **Save & publish** (the editor key is updated too).
+When the token expires, make a new one and paste it in **Publishing setup** (leave the editor password fields empty to keep it).
+If you forget the editor password, delete `data/editor-key.enc.json` on GitHub and do the setup again.
+
+Without setup, the editor still works by hand: **Download encrypted file**, then upload it to `data/` on GitHub.
 Never upload the "plain JSON backup" from the editor. It is not encrypted.
 
 ## Command line (optional)
