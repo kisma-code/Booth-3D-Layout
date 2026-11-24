@@ -19,6 +19,8 @@ BOOTH_PASSWORD='…' node tools/encrypt.mjs encrypt private/booth-data.json data
 
 Deploy = push to the branch that GitHub Pages serves (Settings → Pages → Deploy from a branch, `/ (root)`). `.nojekyll` must stay.
 
+GitHub Pages lets browsers cache files for 10 minutes, so visitors can get old JS. Before committing any change in `js/` or `css/`, run `node tools/stamp-version.mjs`: it rewrites the import map in `index.html` and `editor.html` (every `js/*.js` → `?v=<timestamp>`) and the `?v=` on the entry script and stylesheet. A new file in `js/` must be imported with a relative `./name.js` path so the import map catches it.
+
 For checking changes, drive the page with Playwright (preinstalled): `window.__booth` exposes `{ controls, goTo(id), openPanel(id), closePanel(), pick(x, y), world, camera }`. Headless browsers have no pointer lock, so set `__booth.controls.fallback = true; __booth.controls.onLockChange(false)` first, or the pause overlay covers screenshots.
 
 ## The data/secrecy model (most important constraint)
