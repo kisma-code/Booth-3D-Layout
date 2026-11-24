@@ -1,0 +1,5 @@
+# Plain (unencrypted) booth data must never be committed.
+private/
+*.plain.json
+node_modules/
+.DS_Store

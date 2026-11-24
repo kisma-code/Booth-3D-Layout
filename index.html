@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Booth 3D</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.min.js" } }
+  </script>
+</head>
+<body>
+  <div id="stage"></div>
+
+  <!-- Password screen -->
+  <section id="lock" class="overlay" hidden>
+    <form id="lock-form" class="card" autocomplete="on">
+      <div class="logo-dot" aria-hidden="true"></div>
+      <h1>Booth 3D Tour</h1>
+      <p class="muted">This page is private. Type the password you got from the team.</p>
+      <input type="text" name="username" value="booth" autocomplete="username" hidden>
+      <label for="pw" class="sr">Password</label>
+      <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit">Open booth</button>
+      <p id="lock-error" class="error" role="alert"></p>
+    </form>
+  </section>
+
+  <div id="loading" class="overlay" hidden><div class="spinner" aria-label="Loading"></div></div>
+
+  <!-- Start / pause screen (desktop) -->
+  <section id="start" class="overlay dim" hidden>
+    <div class="card">
+      <h1 id="start-title"></h1>
+      <p id="start-sub" class="muted"></p>
+      <ul class="keys">
+        <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows: walk</li>
+        <li>Mouse: look around · <kbd>Shift</kbd>: run</li>
+        <li>Point at a product and click to see its details</li>
+        <li><kbd>P</kbd>: product list · <kbd>Esc</kbd>: pause</li>
+      </ul>
+      <button id="start-btn" type="button">Click to enter the booth</button>
+      <button id="start-list" type="button" class="ghost">Product list</button>
+    </div>
+  </section>
+
+  <!-- HUD -->
+  <div id="hud" hidden>
+    <div id="hud-info">
+      <div id="hud-title"></div>
+      <div id="hud-sub"></div>
+      <div id="preview-badge" hidden>PREVIEW (not saved)</div>
+    </div>
+    <button id="list-btn" type="button">☰ Products</button>
+    <div id="hint"></div>
+  </div>
+  <div id="crosshair" hidden></div>
+  <div id="tooltip" hidden></div>
+
+  <div id="joystick" hidden><div class="knob"></div></div>
+
+  <!-- Product list -->
+  <aside id="drawer" hidden>
+    <header>
+      <h2>Products</h2>
+      <button id="drawer-close" type="button" class="icon" aria-label="Close">✕</button>
+    </header>
+    <ul id="product-list"></ul>
+  </aside>
+
+  <!-- Product detail -->
+  <aside id="panel" hidden role="dialog" aria-labelledby="p-en">
+    <button id="panel-close" type="button" class="icon" aria-label="Close">✕</button>
+    <span id="p-bu" class="chip"></span>
+    <h2 id="p-en"></h2>
+    <p id="p-zh" class="zh"></p>
+    <div id="p-desc"></div>
+    <a id="p-link" target="_blank" rel="noopener noreferrer">Product page ↗</a>
+  </aside>
+
+  <noscript>This page needs JavaScript and WebGL.</noscript>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

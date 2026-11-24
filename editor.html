@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Booth Editor</title>
+  <link rel="stylesheet" href="css/editor.css">
+</head>
+<body>
+  <main>
+    <section id="unlock" class="card narrow">
+      <h1>Booth data editor</h1>
+      <p class="muted">Type the current password to open the encrypted data. Nothing leaves your browser.</p>
+      <form id="unlock-form">
+        <input type="text" name="username" value="booth" autocomplete="username" hidden>
+        <input id="pw" type="password" placeholder="Current password" autocomplete="current-password" required>
+        <button type="submit">Open data</button>
+      </form>
+      <p class="muted small">Or open a plain JSON backup: <input id="plain-file" type="file" accept=".json,application/json"></p>
+      <p id="unlock-error" class="error" role="alert"></p>
+    </section>
+
+    <section id="editor" hidden>
+      <header class="bar">
+        <h1>Booth data editor</h1>
+        <div class="actions">
+          <button id="preview" type="button" class="ghost">Preview in booth ↗</button>
+          <button id="download" type="button">Download encrypted file</button>
+        </div>
+      </header>
+
+      <details class="card help" open>
+        <summary>How to publish your changes</summary>
+        <ol>
+          <li>Edit the fields below. Use <b>Preview in booth</b> to check them (only you see the preview).</li>
+          <li>Click <b>Download encrypted file</b>. You get <code>booth-data.enc.json</code>.</li>
+          <li>On GitHub, open the repo folder <code>data/</code> → <b>Add file</b> → <b>Upload files</b>. Upload the file (it replaces the old one) and click <b>Commit changes</b>.</li>
+          <li>Wait 1–2 minutes. GitHub Pages then shows the new data.</li>
+        </ol>
+        <p class="muted small">Do not upload the plain JSON backup to GitHub. The repo is public.</p>
+      </details>
+
+      <section class="card">
+        <h2>Password</h2>
+        <p class="muted small">Leave empty to keep the current password. If you change it, tell your colleagues the new one.</p>
+        <div class="grid2">
+          <label>New password <input id="new-pw" type="password" autocomplete="new-password" minlength="8"></label>
+          <label>Type it again <input id="new-pw2" type="password" autocomplete="new-password"></label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Event &amp; brand</h2>
+        <div class="grid2" id="meta"></div>
+      </section>
+
+      <section class="card">
+        <h2>Wall titles</h2>
+        <div id="zones"></div>
+      </section>
+
+      <section class="card">
+        <div class="row-head">
+          <h2>Products</h2>
+          <button id="add-product" type="button" class="ghost">+ Add product</button>
+        </div>
+        <p class="muted small">"Places" sets where the product shows in the booth (see the list at the bottom). The first place gets the (i) marker. A product with no place is hidden.</p>
+        <div id="products"></div>
+      </section>
+
+      <section class="card">
+        <h2>Places in the booth</h2>
+        <table id="anchor-table"><thead><tr><th>Place id</th><th>Where</th><th>Used by</th></tr></thead><tbody></tbody></table>
+      </section>
+
+      <footer class="bar bottom">
+        <button id="download-plain" type="button" class="ghost">Download plain JSON backup (keep private)</button>
+      </footer>
+    </section>
+  </main>
+  <script type="module" src="js/editor.js"></script>
+</body>
+</html>
