@@ -46,11 +46,14 @@ kbd { display: inline-block; min-width: 22px; padding: 1px 6px; margin-right: 3p
 @keyframes spin { to { transform: rotate(360deg); } }
 
 #hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
-#hud-info { position: absolute; top: max(14px, env(safe-area-inset-top)); left: 16px; max-width: calc(100% - 170px); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
+#hud-info { position: absolute; top: max(14px, env(safe-area-inset-top)); left: 16px; max-width: calc(100% - 240px); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
 #hud-title { font-weight: 700; font-size: 16px; }
 #hud-sub { font-size: 12px; color: #d6d8dc; margin-top: 2px; }
 #preview-badge { margin-top: 6px; display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #f2b705; color: #111; }
-#list-btn { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 16px; pointer-events: auto; background: var(--glass); border: 1px solid var(--line); padding: 10px 14px; }
+#top-actions { position: fixed; top: max(12px, env(safe-area-inset-top)); right: 16px; z-index: 25; display: flex; gap: 8px; }
+#list-btn, #lang-btn { background: var(--glass); border: 1px solid var(--line); padding: 10px 14px; }
+#lang-btn { min-width: 52px; font-weight: 700; }
+#lang-btn:hover { background: rgba(40, 42, 48, 0.9); }
 #list-btn:hover { background: rgba(40, 42, 48, 0.9); }
 #list-btn { display: inline-flex; align-items: center; gap: 10px; }
 #list-btn .key-hint { margin: 0; min-width: 22px; padding: 1px 6px; font-size: 12px; font-weight: 700; line-height: 18px; border-radius: 5px; background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.35); }
@@ -60,7 +63,7 @@ body.touch #hint { left: 160px; right: 12px; transform: none; white-space: norma
 
 #crosshair { position: fixed; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45); z-index: 11; pointer-events: none; }
 #tooltip { position: fixed; transform: translateX(-50%); z-index: 12; pointer-events: none; background: var(--red); color: #fff; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 8px; max-width: 320px; text-align: center; }
-#tooltip::after { content: " · click"; font-weight: 400; opacity: 0.85; }
+#tooltip::after { content: attr(data-suffix); font-weight: 400; opacity: 0.85; }
 
 #joystick { position: fixed; left: 24px; bottom: max(24px, env(safe-area-inset-bottom)); width: 120px; height: 120px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.25); z-index: 15; touch-action: none; }
 #joystick .knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(255, 255, 255, 0.55); }

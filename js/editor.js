@@ -268,7 +268,8 @@ function renderProducts() {
           buField,
           field('Product page link', p, 'link', { placeholder: 'https://…' }),
         ),
-        field('Description', p, 'description', { textarea: true, placeholder: 'Empty = “Product description coming soon.”' }),
+        field('Description (English)', p, 'description', { textarea: true, placeholder: 'Empty = “Product description coming soon.”' }),
+        field('Description (Chinese)', p, 'descriptionZh', { textarea: true, placeholder: 'Empty = the English description is shown in Chinese mode' }),
         el('div', { class: 'grid2' }, anchorsField, el('label', {}, '3D model shape', model)),
         el('div', { class: 'p-card' },
           el('div', { class: 'p-card-head' }, 'Business card', el('span', { class: 'muted small' }, 'shown by “Contact sales”')),
@@ -305,7 +306,7 @@ $('#add-product').addEventListener('click', () => {
   let id = base, n = 1;
   while (data.products.some((p) => p.id === id)) id = `${base}-${++n}`;
   const lastCard = data.products.at(-1)?.contact;
-  data.products.push({ id, nameEn: '', nameZh: '', bu: '', description: '', link: '', anchors: [], contact: { ...(lastCard || {}) }, _open: true });
+  data.products.push({ id, nameEn: '', nameZh: '', bu: '', description: '', descriptionZh: '', link: '', anchors: [], contact: { ...(lastCard || {}) }, _open: true });
   renderProducts();
   $('#products').lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });

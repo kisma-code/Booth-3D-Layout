@@ -3,6 +3,7 @@ import { decryptJSON } from './crypto.js';
 import { buildWorld } from './scene.js';
 import { FPSControls } from './controls.js';
 import { buColor, buKey, compareBu } from './bu.js';
+import { t, pick as pickText, applyStatic, toggleLang, onLangChange } from './i18n.js';
 
 const DATA_URL = 'data/booth-data.enc.json';
 const PW_KEY = 'booth3d.pw';
@@ -10,6 +11,8 @@ const PREVIEW_KEY = 'booth3d.preview';
 const $ = (s) => document.querySelector(s);
 const isTouch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
 document.body.classList.toggle('touch', isTouch);
+applyStatic();
+$('#lang-btn').addEventListener('click', (e) => { toggleLang(); e.currentTarget.blur(); });
 
 const store = {
   get(k) { try { return sessionStorage.getItem(k); } catch { return null; } },
@@ -45,15 +48,15 @@ $('#lock-form').addEventListener('submit', async (e) => {
   const err = $('#lock-error');
   err.textContent = '';
   btn.disabled = true;
-  btn.textContent = 'Opening…';
+  btn.textContent = t('opening');
   let data;
   try {
     data = await loadData(pw);
   } catch (ex) {
     console.error(ex);
-    err.textContent = ex.message === 'WRONG_PASSWORD' ? 'Wrong password. Try again.' : 'Cannot load the booth data. Reload the page.';
+    err.textContent = ex.message === 'WRONG_PASSWORD' ? t('wrongPw') : t('loadFail');
     btn.disabled = false;
-    btn.textContent = 'Open booth';
+    btn.textContent = t('open');
     return;
   }
   store.set(PW_KEY, pw);
@@ -104,13 +107,18 @@ async function start(data, isPreview = false) {
   controls.setPose(START.x, START.z, START.yaw, -0.08);
 
   // ---------- UI text ----------
-  $('#hud-title').textContent = ev.title || '';
-  $('#hud-sub').textContent = [ev.stand && `Booth ${ev.stand}`, ev.venue, ev.dates].filter(Boolean).join(' · ');
-  $('#start-title').textContent = ev.title || 'Booth 3D';
-  $('#start-sub').textContent = $('#hud-sub').textContent;
+  function renderEventText() {
+    $('#hud-title').textContent = ev.title || '';
+    $('#hud-sub').textContent = [ev.stand && t('booth', ev.stand), ev.venue, ev.dates].filter(Boolean).join(' · ');
+    $('#start-title').textContent = ev.title || t('title');
+    $('#start-sub').textContent = $('#hud-sub').textContent;
+  }
+  renderEventText();
   if (isPreview) $('#preview-badge').hidden = false;
 
   const list = $('#product-list');
+  function renderList() {
+  list.replaceChildren();
   // Grouped by BU (A–Z, no BU last); each row is tinted with its BU tag colour.
   const groups = new Map();
   for (const p of products) {
@@ -125,7 +133,7 @@ async function start(data, isPreview = false) {
     const head = document.createElement('li');
     head.className = 'bu-head';
     head.style.setProperty('--bu', color);
-    head.textContent = bu || 'Other';
+    head.textContent = bu || t('other');
     list.appendChild(head);
     for (const p of groups.get(bu)) {
       const li = document.createElement('li');
@@ -133,13 +141,17 @@ async function start(data, isPreview = false) {
       b.type = 'button';
       b.style.setProperty('--bu', color);
       b.innerHTML = `<span class="en"></span><span class="zh"></span>`;
-      b.querySelector('.en').textContent = p.nameEn;
-      b.querySelector('.zh').textContent = p.nameZh || '';
+      // Name in the chosen language first, the other language below.
+      const main = pickText(p.nameEn, p.nameZh);
+      b.querySelector('.en').textContent = main;
+      b.querySelector('.zh').textContent = main === p.nameEn ? (p.nameZh || '') : (p.nameEn || '');
       b.addEventListener('click', () => goTo(p.id));
       li.appendChild(b);
       list.appendChild(li);
     }
   }
+  }
+  renderList();
 
   // ---------- state + overlays ----------
   let panelOpen = false, listOpen = false, started = false;
@@ -149,11 +161,7 @@ async function start(data, isPreview = false) {
     $('#start').hidden = !paused;
     $('#crosshair').hidden = isTouch || !controls.locked;
     controls.enabled = started && !panelOpen && (isTouch || controls.locked || controls.fallback);
-    $('#hint').textContent = isTouch
-      ? 'Left stick: walk · Drag: look · Tap a product or the (i) marker'
-      : controls.fallback
-        ? 'WASD / arrows: walk · Drag: look · Click a product · P: product list'
-        : 'WASD / arrows: walk · Mouse: look · Click: open product · Shift: run · P: list · Esc: pause';
+    $('#hint').textContent = t(isTouch ? 'hintTouch' : controls.fallback ? 'hintDrag' : 'hintLock');
   }
   controls.onLockChange = () => {
     if (controls.locked) started = true;
@@ -213,9 +221,11 @@ async function start(data, isPreview = false) {
   $('#card-overlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeCard(); });
 
   // ---------- product panel ----------
+  let panelId = null;
   function openPanel(id) {
     const p = byId.get(id);
     if (!p) return;
+    panelId = id;
     panelOpen = true;
     controls.unlock();
     setHover(null);
@@ -223,19 +233,22 @@ async function start(data, isPreview = false) {
     chip.textContent = p.bu || '';
     chip.hidden = !p.bu;
     chip.style.setProperty('--chip', buColor(p.bu));
-    $('#p-en').textContent = p.nameEn || '';
-    $('#p-zh').textContent = p.nameZh || '';
+    const main = pickText(p.nameEn, p.nameZh);
+    $('#p-en').textContent = main;
+    $('#p-zh').textContent = main === p.nameEn ? (p.nameZh || '') : (p.nameEn || '');
     const desc = $('#p-desc');
     desc.textContent = '';
-    if (p.description && p.description.trim() && p.description.trim() !== '-') {
-      for (const para of p.description.split(/\n+/)) {
+    const clean = (s) => (s && s.trim() && s.trim() !== '-' ? s : '');
+    const text = pickText(clean(p.description), clean(p.descriptionZh));
+    if (text) {
+      for (const para of text.split(/\n+/)) {
         const el = document.createElement('p');
         el.textContent = para;
         desc.appendChild(el);
       }
       desc.classList.remove('empty');
     } else {
-      desc.textContent = 'Product description coming soon.';
+      desc.textContent = t('comingSoon');
       desc.classList.add('empty');
     }
     const link = $('#p-link');
@@ -305,7 +318,7 @@ async function start(data, isPreview = false) {
     if (id) highlight(id, true);
     const tip = $('#tooltip');
     tip.hidden = !id;
-    if (id) tip.textContent = byId.get(id)?.nameEn || '';
+    if (id) { const p = byId.get(id); tip.textContent = pickText(p?.nameEn, p?.nameZh); tip.dataset.suffix = t('clickSuffix'); }
     renderer.domElement.style.cursor = id && controls.fallback ? 'pointer' : '';
   }
   function highlight(id, on) {
@@ -322,6 +335,15 @@ async function start(data, isPreview = false) {
       }
     }
   }
+
+  // ---------- language switch ----------
+  onLangChange(() => {
+    renderEventText();
+    renderList();
+    refreshOverlay();
+    if (panelOpen && panelId) openPanel(panelId);
+    if (hovered) { const p = byId.get(hovered); $('#tooltip').textContent = pickText(p?.nameEn, p?.nameZh); $('#tooltip').dataset.suffix = t('clickSuffix'); }
+  });
 
   // ---------- loop ----------
   const clock = new THREE.Clock();
@@ -356,6 +378,7 @@ async function start(data, isPreview = false) {
 
   $('#loading').hidden = true;
   $('#hud').hidden = false;
+  $('#list-btn').hidden = false;
   if (isTouch) {
     started = true;
     $('#joystick').hidden = false;
