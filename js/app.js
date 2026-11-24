@@ -173,9 +173,11 @@ async function start(data, isPreview = false) {
   }
 
   // ---------- business card (Contact sales) ----------
-  const contact = data.contact || {};
-  const hasContact = Boolean(contact.nameEn || contact.email || contact.mobile);
+  // Each product has its own card (product.contact); data.contact is an old-format fallback.
+  const contactFor = (p) => p?.contact || data.contact || {};
+  const hasContact = (c) => Boolean(c.nameEn || c.email || c.mobile);
   let cardOpen = false;
+  let contact = {};
   function openCard() {
     const set = (id, v) => { $(id).textContent = v || ''; };
     set('#c-brand', data.brand?.name);
@@ -232,7 +234,8 @@ async function start(data, isPreview = false) {
     const ok = /^https:\/\//.test(p.link || '');
     link.hidden = !ok;
     if (ok) link.href = p.link;
-    $('#p-contact').hidden = !hasContact;
+    contact = contactFor(p);
+    $('#p-contact').hidden = !hasContact(contact);
     $('#panel').hidden = false;
     $('#panel-close').focus({ preventScroll: true });
     refreshOverlay();

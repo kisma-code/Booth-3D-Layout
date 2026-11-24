@@ -140,7 +140,11 @@ function openEditor() {
   data.event ||= {};
   data.zones ||= {};
   data.products ||= [];
-  data.contact ||= {};
+  // Old format: one shared card -> copy it into every product that has none.
+  if (data.contact) {
+    for (const p of data.products) p.contact ||= { ...data.contact };
+    delete data.contact;
+  }
   $('#unlock').hidden = true;
   $('#editor').hidden = false;
   if (!password) $('#new-pw').required = true;
@@ -183,14 +187,6 @@ function renderMeta() {
     field('Company line', data.brand, 'company'),
     field('Tagline', data.brand, 'tagline'),
   );
-  $('#card-fields').replaceChildren(
-    field('Name (English)', data.contact, 'nameEn'),
-    field('Name (Chinese)', data.contact, 'nameZh'),
-    field('Job title (English)', data.contact, 'titleEn'),
-    field('Job title (Chinese)', data.contact, 'titleZh'),
-    field('Mobile', data.contact, 'mobile'),
-    field('Email', data.contact, 'email'),
-  );
 }
 
 const ZONE_LABELS = {
@@ -221,6 +217,7 @@ function renderProducts() {
   const box = $('#products');
   box.replaceChildren();
   data.products.forEach((p, i) => {
+    p.contact ||= {};
     const title = el('span', { class: 'p-name' }, p.nameEn || 'New product');
     const bu = el('span', { class: 'p-bu' }, p.bu || '—');
     const meta = el('span', { class: 'p-meta' });
@@ -252,6 +249,17 @@ function renderProducts() {
         ),
         field('Description', p, 'description', { textarea: true, placeholder: 'Empty = “Product description coming soon.”' }),
         el('div', { class: 'grid2' }, anchorsField, el('label', {}, '3D model shape', model)),
+        el('div', { class: 'p-card' },
+          el('div', { class: 'p-card-head' }, 'Business card', el('span', { class: 'muted small' }, 'shown by “Contact sales”')),
+          el('div', { class: 'grid2' },
+            field('Name (English)', p.contact, 'nameEn'),
+            field('Name (Chinese)', p.contact, 'nameZh'),
+            field('Job title (English)', p.contact, 'titleEn'),
+            field('Job title (Chinese)', p.contact, 'titleZh'),
+            field('Mobile', p.contact, 'mobile'),
+            field('Email', p.contact, 'email'),
+          ),
+        ),
         el('div', { class: 'p-foot' },
           el('button', { type: 'button', class: 'danger', onclick: () => {
             if (confirm(`Delete "${p.nameEn || 'this product'}"?`)) { data.products.splice(i, 1); renderProducts(); renderAnchors(); }
@@ -275,7 +283,8 @@ $('#add-product').addEventListener('click', () => {
   const base = 'new-product';
   let id = base, n = 1;
   while (data.products.some((p) => p.id === id)) id = `${base}-${++n}`;
-  data.products.push({ id, nameEn: '', nameZh: '', bu: '', description: '', link: '', anchors: [], _open: true });
+  const lastCard = data.products.at(-1)?.contact;
+  data.products.push({ id, nameEn: '', nameZh: '', bu: '', description: '', link: '', anchors: [], contact: { ...(lastCard || {}) }, _open: true });
   renderProducts();
   $('#products').lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });

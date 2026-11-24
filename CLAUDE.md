@@ -32,7 +32,7 @@ The repo is **public**. All booth text and product data live only in `data/booth
 - Non-developers edit data through `editor.html` (`js/editor.js`): decrypt in the browser, edit, "Preview in booth" (passes data via `sessionStorage` key `booth3d.preview` to `index.html?preview=1`), then publish.
 - Two passwords. `data/editor-key.enc.json` = `{ token, owner, repo, branch, viewerPassword }` encrypted with the **editor password** (600k PBKDF2 rounds). When it exists, the editor only accepts the editor password and "Save & publish" PUTs `data/booth-data.enc.json` (encrypted with the visitor password) through the GitHub contents API; changing the visitor password re-writes the key file too. When it does not exist, the editor opens with the visitor password in manual mode (download + upload) and shows the setup form. Local re-encryption with `tools/encrypt.mjs` stays valid as long as the visitor password is unchanged.
 
-Data shape: `{ brand, event, contact: { nameEn, nameZh, titleEn, titleZh, mobile, email }, zones: { <zoneId>: { title, subtitle?, rows? } }, products: [{ id, nameEn, nameZh, bu, description, link, model?, anchors: [anchorId…] }] }`. `contact` fills the business card that the "Contact sales" button opens.
+Data shape: `{ brand, event, zones: { <zoneId>: { title, subtitle?, rows? } }, products: [{ id, nameEn, nameZh, bu, description, link, model?, anchors: [anchorId…], contact: { nameEn, nameZh, titleEn, titleZh, mobile, email } }] }`. Each product's `contact` fills the business card that its "Contact sales" button opens. An old top-level `contact` is still read as a fallback by the booth, and the editor copies it into every product on open.
 
 ## Architecture
 

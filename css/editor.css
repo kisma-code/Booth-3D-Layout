@@ -94,6 +94,8 @@ section > .muted.small { margin: -10px 0 18px; }
 .p-meta { font-size: 14px; color: var(--muted); flex: none; }
 .p-body { display: grid; gap: 16px; padding: 4px 4px 24px; }
 .p-foot { display: flex; justify-content: flex-end; }
+.p-card { border-top: 1px dashed var(--line); padding-top: 16px; display: grid; gap: 14px; }
+.p-card-head { font-weight: 600; font-size: 15px; display: flex; gap: 10px; align-items: baseline; }
 
 /* ---------- settings ---------- */
 details > summary { cursor: pointer; }
