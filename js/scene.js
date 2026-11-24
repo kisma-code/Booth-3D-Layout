@@ -183,7 +183,7 @@ export function buildWorld(data, renderer) {
     front: { zone: 'A_front', style: 'red', seed: 2, titleY: 9, titleSize: 9, captions: [{ anchor: 'A_front_cabinet', x: 20, w: 160, y: 22, size: 4 }, { anchor: 'A_front_tv', x: 20, w: 160, y: 22, size: 4 }] },
     back: { zone: 'A_back', style: 'red', seed: 5, titleY: 14, titleSize: 10, captions: [{ anchor: 'A_back_tv', x: 20, w: 160, y: 34, size: 4 }] },
     build(g) {
-      tv('A_front_tv', 42, g, -0.495, FLOOR_H + 1.66, 1);
+      tv('A_front_tv', 42, g, 0, FLOOR_H + 1.66, 1); // centred on the wall
       tv('A_back_tv', 42, g, 0.005, FLOOR_H + 1.66, -1);
       // Cabinet A 115 × 70 × 67 with glass case 100 × 50 × 50 on top
       const cab = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.67, 0.7), M.white);
