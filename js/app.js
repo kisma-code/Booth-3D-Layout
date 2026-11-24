@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { decryptJSON } from './crypto.js';
 import { buildWorld } from './scene.js';
 import { FPSControls } from './controls.js';
+import { buColor, buKey, compareBu } from './bu.js';
 
 const DATA_URL = 'data/booth-data.enc.json';
 const PW_KEY = 'booth3d.pw';
@@ -16,16 +17,6 @@ const store = {
   del(k) { try { sessionStorage.removeItem(k); } catch { /* storage blocked */ } },
 };
 
-// Tag colour per BU. Unknown BUs get a stable colour from their name.
-const BU_COLORS = { HV: '#ff6b7d', TR: '#ffb347', SV: '#5aa9ff', GI: '#4cd48a', GA: '#b98cff', CASE: '#3fd0d4', HR: '#f78fd0' };
-const BU_FALLBACK = ['#ffd24d', '#7ee0c3', '#ff9a6b', '#9fb4ff', '#e07ef0'];
-function buColor(bu) {
-  const key = String(bu || '').trim().toUpperCase();
-  if (BU_COLORS[key]) return BU_COLORS[key];
-  let h = 0;
-  for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return BU_FALLBACK[h % BU_FALLBACK.length];
-}
 
 // ---------- unlock ----------
 async function loadData(password) {
@@ -124,13 +115,13 @@ async function start(data, isPreview = false) {
   const groups = new Map();
   for (const p of products) {
     if (!world.productMeshes.has(p.id)) continue;
-    const bu = String(p.bu || '').trim().toUpperCase();
+    const bu = buKey(p.bu);
     if (!groups.has(bu)) groups.set(bu, []);
     groups.get(bu).push(p);
   }
-  const buOrder = [...groups.keys()].sort((a, b) => (!a) - (!b) || a.localeCompare(b));
+  const buOrder = [...groups.keys()].sort(compareBu);
   for (const bu of buOrder) {
-    const color = bu ? buColor(bu) : '#a9adb6';
+    const color = buColor(bu);
     const head = document.createElement('li');
     head.className = 'bu-head';
     head.style.setProperty('--bu', color);

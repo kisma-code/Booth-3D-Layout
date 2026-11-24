@@ -46,6 +46,8 @@ Data shape: `{ brand, event, zones: { <zoneId>: { title, subtitle?, rows? } }, p
 
 **`js/models.js` – `buildModel(kind, { brand })`**: procedural stand-in product models (origin = bottom centre, front = +Z), detailed with canvas textures from `paintTexture` in `js/textures.js`. Material arrays per box face are allowed.
 
+**`js/bu.js`**: BU tag colours (`buColor`) and BU ordering (`compareBu`: A–Z, empty last), shared by the booth (panel tag, product list groups) and the editor (product list groups, kept sorted by BU).
+
 **`js/textures.js`**: canvas painters in centimetre units (wall panels in red/white/circuit styles, screens, ring sign, LED city scene, counter, marker icon).
 
 **`js/controls.js` – `FPSControls`**: pointer-lock mouse look (desktop), drag-to-look fallback when pointer lock fails, touch joystick + drag + tap (mobile), WASD/arrows, collision resolution against `world.colliders` and `world.bounds`. Selection goes through `onSelectAt(x, y)` (`null` = screen centre).

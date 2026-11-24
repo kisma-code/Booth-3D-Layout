@@ -83,6 +83,9 @@ section > .muted.small { margin: -10px 0 18px; }
 
 /* ---------- product list (accordion) ---------- */
 .list { border-top: 1px solid var(--line); }
+.list .bu-head { --bu: var(--muted); margin: 22px 4px 2px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: var(--bu); display: flex; align-items: center; gap: 10px; }
+.list .bu-head::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--bu) 35%, transparent); }
+.list .bu-head + .product { border-top: 0; }
 .product { border-bottom: 1px solid var(--line); }
 .product > summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 14px 4px; cursor: pointer; }
 .product > summary::-webkit-details-marker { display: none; }
@@ -90,7 +93,7 @@ section > .muted.small { margin: -10px 0 18px; }
 .product[open] > summary::after { transform: rotate(45deg); }
 .product > summary:hover .p-name { color: var(--red); }
 .p-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.p-bu { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; flex: none; }
+.p-bu { --bu: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--bu); background: color-mix(in srgb, var(--bu) 14%, transparent); border: 1px solid color-mix(in srgb, var(--bu) 45%, transparent); border-radius: 999px; padding: 1px 8px; flex: none; }
 .p-meta { font-size: 14px; color: var(--muted); flex: none; }
 .p-body { display: grid; gap: 16px; padding: 4px 4px 24px; }
 .p-foot { display: flex; justify-content: flex-end; }

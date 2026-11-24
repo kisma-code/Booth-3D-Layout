@@ -6,6 +6,7 @@
 //  - manual: no editor key exists yet. Unlocked with the visitor password; download + upload by hand.
 import { encryptJSON, decryptJSON } from './crypto.js';
 import { ANCHORS, MODEL_KINDS } from './anchors.js';
+import { buColor, buKey, compareBu } from './bu.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const PREVIEW_KEY = 'booth3d.preview';
@@ -213,13 +214,33 @@ function slug(s) {
   return String(s).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'product';
 }
 
+/** Keep products ordered by BU (A–Z, empty last); the sort is stable, so order inside a BU stays. */
+function sortProducts() {
+  data.products.sort((a, b) => compareBu(a.bu, b.bu));
+}
+
 function renderProducts() {
+  sortProducts();
   const box = $('#products');
   box.replaceChildren();
+  let lastBu = null;
   data.products.forEach((p, i) => {
+    const key = buKey(p.bu);
+    if (key !== lastBu) {
+      lastBu = key;
+      box.append(el('div', { class: 'bu-head', style: `--bu: ${buColor(key)}` }, key || 'No BU'));
+    }
     p.contact ||= {};
     const title = el('span', { class: 'p-name' }, p.nameEn || 'New product');
-    const bu = el('span', { class: 'p-bu' }, p.bu || '—');
+    const bu = el('span', { class: 'p-bu', style: `--bu: ${buColor(p.bu)}` }, p.bu || '—');
+    // BU: the tag updates while typing; the list re-sorts when the field loses focus.
+    const buField = field('BU', p, 'bu', { onChange: () => { bu.textContent = p.bu || '—'; bu.style.setProperty('--bu', buColor(p.bu)); } });
+    buField.querySelector('input').addEventListener('change', () => {
+      p._open = true;
+      renderProducts();
+      const row = [...$('#products').querySelectorAll('.product')].find((d) => d.open);
+      row?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
     const meta = el('span', { class: 'p-meta' });
     const setMeta = () => { const n = (p.anchors || []).length; meta.textContent = n ? `${n} place${n > 1 ? 's' : ''}` : 'hidden'; };
     setMeta();
@@ -244,7 +265,7 @@ function renderProducts() {
         el('div', { class: 'grid2' },
           field('Name (English)', p, 'nameEn', { onChange: () => { title.textContent = p.nameEn || 'New product'; } }),
           field('Name (Chinese)', p, 'nameZh'),
-          field('BU', p, 'bu', { onChange: () => { bu.textContent = p.bu || '—'; } }),
+          buField,
           field('Product page link', p, 'link', { placeholder: 'https://…' }),
         ),
         field('Description', p, 'description', { textarea: true, placeholder: 'Empty = “Product description coming soon.”' }),
