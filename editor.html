@@ -9,19 +9,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="css/editor.css?v=20261124080142">
+  <link rel="stylesheet" href="css/editor.css?v=20261124081002">
   <script type="importmap">
     {
       "imports": {
         "three": "./vendor/three.module.min.js",
-        "./js/anchors.js": "./js/anchors.js?v=20261124080142",
-        "./js/app.js": "./js/app.js?v=20261124080142",
-        "./js/controls.js": "./js/controls.js?v=20261124080142",
-        "./js/crypto.js": "./js/crypto.js?v=20261124080142",
-        "./js/editor.js": "./js/editor.js?v=20261124080142",
-        "./js/models.js": "./js/models.js?v=20261124080142",
-        "./js/scene.js": "./js/scene.js?v=20261124080142",
-        "./js/textures.js": "./js/textures.js?v=20261124080142"
+        "./js/anchors.js": "./js/anchors.js?v=20261124081002",
+        "./js/app.js": "./js/app.js?v=20261124081002",
+        "./js/controls.js": "./js/controls.js?v=20261124081002",
+        "./js/crypto.js": "./js/crypto.js?v=20261124081002",
+        "./js/editor.js": "./js/editor.js?v=20261124081002",
+        "./js/models.js": "./js/models.js?v=20261124081002",
+        "./js/scene.js": "./js/scene.js?v=20261124081002",
+        "./js/textures.js": "./js/textures.js?v=20261124081002"
       }
     }
   </script>
@@ -48,7 +48,6 @@
       <p id="publish-status" class="status" role="status"></p>
       <div class="actions">
         <button id="preview" type="button" class="text">Preview</button>
-        <button id="download" type="button" class="text">Download</button>
         <button id="publish" type="button" class="primary" hidden>Publish</button>
       </div>
     </header>
@@ -65,7 +64,7 @@
 
       <main>
         <p id="help-publish" class="hint" hidden>Edit, check with <b>Preview</b>, then <b>Publish</b>. The booth updates in 1–2 minutes.</p>
-        <p id="help-manual" class="hint">Publishing is not set up. <b>Download</b> the file and upload it to <code>data/</code> on GitHub, or set up publishing in <a href="#s-settings">Settings</a>.</p>
+        <p id="help-manual" class="hint">Publishing is not set up. Set it up in <a href="#s-settings">Settings</a>, or use <b>Settings → Backup → Download encrypted file</b> and upload it to <code>data/</code> on GitHub.</p>
 
         <section id="s-event">
           <h2>Event &amp; brand</h2>
@@ -132,14 +131,14 @@
 
           <details class="sub">
             <summary>Backup</summary>
-            <p class="muted small">The backup is not encrypted. Keep it on your computer. Never upload it to GitHub.</p>
-            <p><button id="download-plain" type="button" class="text">Download plain JSON</button></p>
+            <p class="muted small">The encrypted file is safe to upload to <code>data/</code> on GitHub. The plain JSON is not encrypted: keep it on your computer and never upload it.</p>
+            <p class="row-btns"><button id="download" type="button" class="text">Download encrypted file</button><button id="download-plain" type="button" class="text">Download plain JSON</button></p>
           </details>
         </section>
       </main>
     </div>
   </div>
 
-  <script type="module" src="js/editor.js?v=20261124080142"></script>
+  <script type="module" src="js/editor.js?v=20261124081002"></script>
 </body>
 </html>
