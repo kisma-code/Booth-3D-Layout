@@ -76,7 +76,8 @@ $('#lock-form').addEventListener('submit', async (e) => {
 async function loadFonts(data) {
   if (!document.fonts?.load) return;
   const text = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' + JSON.stringify(data);
-  const specs = ['400', '500', '600', '700', '800'].flatMap((w) => [`${w} 16px "Noto Sans"`, `${w} 16px "Noto Sans TC"`]);
+  const specs = ['400', '500', '600', '700', '800'].flatMap((w) => [`${w} 16px "Archivo"`, `${w} 16px "Noto Sans TC"`]);
+  specs.push('800 expanded 16px "Archivo"');
   const all = Promise.all(specs.map((s) => document.fonts.load(s, text).catch(() => null)));
   await Promise.race([all, new Promise((r) => setTimeout(r, 4000))]);
 }

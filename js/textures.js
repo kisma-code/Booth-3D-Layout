@@ -2,7 +2,7 @@
 // All text comes from the (decrypted) booth data, never from this file.
 import * as THREE from 'three';
 
-export const FONT = '"Noto Sans", "Noto Sans TC", "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif';
+export const FONT = '"Archivo", "Noto Sans TC", "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif';
 export const BRAND_RED = '#e60027';
 
 const MAX_TEX = 4096;
@@ -43,8 +43,11 @@ export function toTexture(canvas) {
   return t;
 }
 
+/** weight 'brand' = heavy + expanded width, close to the brand wordmark. */
 function setFont(ctx, size, weight = '600') {
-  ctx.font = `${weight} ${size}px ${FONT}`;
+  const brand = weight === 'brand';
+  ctx.font = `${brand ? '800' : weight} ${size}px ${FONT}`;
+  if ('fontStretch' in ctx) ctx.fontStretch = brand ? 'expanded' : 'normal';
 }
 
 function fitFont(ctx, text, maxW, size, weight = '600') {
@@ -194,8 +197,8 @@ function paintCircuit(ctx, w, h, seed = 7, chip = null) {
   ctx.lineWidth = 0.4;
   ctx.strokeRect(-cw / 2 + 2, -cw / 2 + 2, cw - 4, cw - 4);
   if (chip?.label) {
-    const s = fitFont(ctx, chip.label, cw * 0.7, cw * 0.16, '800');
-    setFont(ctx, s, '800');
+    const s = fitFont(ctx, chip.label, cw * 0.7, cw * 0.16, 'brand');
+    setFont(ctx, s, 'brand');
     ctx.fillStyle = '#e9edf5';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -290,8 +293,8 @@ export function wallTexture(opts) {
   }
   if (opts.brand && opts.brand.text) {
     const b = opts.brand;
-    const size = fitFont(ctx, b.text, b.maxW || w * 0.8, b.sizeCm, '800');
-    setFont(ctx, size, '800');
+    const size = fitFont(ctx, b.text, b.maxW || w * 0.8, b.sizeCm, 'brand');
+    setFont(ctx, size, 'brand');
     ctx.fillStyle = b.color || '#ffffff';
     ctx.textAlign = b.align || 'left';
     ctx.textBaseline = 'top';
@@ -403,7 +406,7 @@ export function screenTexture(en, zh, brand) {
     let y = textBlock(ctx, en, w / 2, h * 0.3, w * 0.86, size, '#ffffff', '700', 1.15);
     if (zh) textBlock(ctx, zh, w / 2, y + 1, w * 0.86, size * 0.75, '#ffffff', '500', 1.15);
   }
-  if (brand) textBlock(ctx, brand, w / 2, en ? h * 0.82 : h * 0.4, w * 0.8, en ? 5 : 14, en ? 'rgba(255,255,255,0.85)' : '#ffffff', '800');
+  if (brand) textBlock(ctx, brand, w / 2, en ? h * 0.82 : h * 0.4, w * 0.8, en ? 5 : 14, en ? 'rgba(255,255,255,0.85)' : '#ffffff', 'brand');
   return toTexture(c);
 }
 
@@ -495,8 +498,8 @@ export function brandBoxTexture(brand, wCm, hCm) {
   ctx.fillStyle = '#f5f5f5'; ctx.fillRect(0, 0, w, h);
   ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 0.3; ctx.strokeRect(4, 6, w - 8, h - 9);
   if (brand) {
-    const s = fitFont(ctx, brand, w * 0.75, 13, '800');
-    setFont(ctx, s, '800');
+    const s = fitFont(ctx, brand, w * 0.75, 13, 'brand');
+    setFont(ctx, s, 'brand');
     ctx.fillStyle = BRAND_RED; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(brand, w / 2, h * 0.32);
   }
@@ -513,15 +516,14 @@ export function ringTexture(brand) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, c.width, c.height);
   if (brand) {
-    const size = fitFont(ctx, brand, 880, 190, '800');
-    setFont(ctx, size, '800');
+    const size = fitFont(ctx, brand, 880, 190, 'brand');
+    setFont(ctx, size, 'brand');
     ctx.fillStyle = BRAND_RED;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     for (const x of [1024, 3072]) {
       ctx.save();
       ctx.translate(x, c.height / 2 + 6);
-      ctx.scale(0.92, 1);
       ctx.fillText(brand, 0, 0);
       ctx.restore();
     }
@@ -546,8 +548,8 @@ export function counterTexture(brand) {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, h);
   if (brand) {
-    const size = fitFont(ctx, brand, 34, 11, '800');
-    setFont(ctx, size, '800');
+    const size = fitFont(ctx, brand, 34, 11, 'brand');
+    setFont(ctx, size, 'brand');
     ctx.fillStyle = BRAND_RED;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
