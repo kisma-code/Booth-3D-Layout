@@ -84,7 +84,12 @@ function renderMeta() {
     field('Brand (ring sign, walls)', data.brand, 'name'),
     field('Company line', data.brand, 'company'),
     field('Tagline', data.brand, 'tagline'),
-    field('Sales email ("Contact sales" button)', data.contact, 'salesEmail', { placeholder: 'name@company.com' }),
+    field('Business card – name (English)', data.contact, 'nameEn'),
+    field('Business card – name (Chinese)', data.contact, 'nameZh'),
+    field('Business card – job title (English)', data.contact, 'titleEn'),
+    field('Business card – job title (Chinese)', data.contact, 'titleZh'),
+    field('Business card – mobile', data.contact, 'mobile'),
+    field('Business card – email', data.contact, 'email'),
   );
 }
 

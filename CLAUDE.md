@@ -31,7 +31,7 @@ The repo is **public**. All booth text and product data live only in `data/booth
 - After any data change: edit `private/booth-data.json`, re-encrypt with the current password, commit only the `.enc.json`.
 - Non-developers edit data through `editor.html` (`js/editor.js`): decrypt in the browser, edit, "Preview in booth" (passes data via `sessionStorage` key `booth3d.preview` to `index.html?preview=1`), then download a new encrypted file and upload it to `data/`.
 
-Data shape: `{ brand, event, zones: { <zoneId>: { title, subtitle?, rows? } }, products: [{ id, nameEn, nameZh, bu, description, link, model?, anchors: [anchorId…] }] }`.
+Data shape: `{ brand, event, contact: { nameEn, nameZh, titleEn, titleZh, mobile, email }, zones: { <zoneId>: { title, subtitle?, rows? } }, products: [{ id, nameEn, nameZh, bu, description, link, model?, anchors: [anchorId…] }] }`. `contact` fills the business card that the "Contact sales" button opens.
 
 ## Architecture
 

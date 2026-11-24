@@ -6,19 +6,19 @@
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="referrer" content="no-referrer">
   <title>Booth 3D</title>
-  <link rel="stylesheet" href="css/style.css?v=20261124070731">
+  <link rel="stylesheet" href="css/style.css?v=20261124071151">
   <script type="importmap">
     {
       "imports": {
         "three": "./vendor/three.module.min.js",
-        "./js/anchors.js": "./js/anchors.js?v=20261124070731",
-        "./js/app.js": "./js/app.js?v=20261124070731",
-        "./js/controls.js": "./js/controls.js?v=20261124070731",
-        "./js/crypto.js": "./js/crypto.js?v=20261124070731",
-        "./js/editor.js": "./js/editor.js?v=20261124070731",
-        "./js/models.js": "./js/models.js?v=20261124070731",
-        "./js/scene.js": "./js/scene.js?v=20261124070731",
-        "./js/textures.js": "./js/textures.js?v=20261124070731"
+        "./js/anchors.js": "./js/anchors.js?v=20261124071151",
+        "./js/app.js": "./js/app.js?v=20261124071151",
+        "./js/controls.js": "./js/controls.js?v=20261124071151",
+        "./js/crypto.js": "./js/crypto.js?v=20261124071151",
+        "./js/editor.js": "./js/editor.js?v=20261124071151",
+        "./js/models.js": "./js/models.js?v=20261124071151",
+        "./js/scene.js": "./js/scene.js?v=20261124071151",
+        "./js/textures.js": "./js/textures.js?v=20261124071151"
       }
     }
   </script>
@@ -91,11 +91,28 @@
     <div id="p-desc"></div>
     <div class="p-actions">
       <a id="p-link" target="_blank" rel="noopener noreferrer">Product page ↗</a>
-      <a id="p-contact">Contact sales ✉</a>
+      <button id="p-contact" type="button">Contact sales</button>
     </div>
   </aside>
 
+  <!-- Virtual business card (Contact sales) -->
+  <div id="card-overlay" class="overlay dim" hidden>
+    <div class="bizcard" role="dialog" aria-modal="true" aria-labelledby="c-name-en">
+      <button id="card-close" type="button" class="icon" aria-label="Close">✕</button>
+      <div class="bc-brand" id="c-brand"></div>
+      <div class="bc-person">
+        <div class="bc-name"><span id="c-name-en"></span> <span id="c-name-zh" class="zh"></span></div>
+        <div class="bc-title"><span id="c-title-en"></span> <span id="c-title-zh"></span></div>
+      </div>
+      <dl class="bc-info">
+        <div id="c-mobile-row"><dt>Mobile</dt><dd id="c-mobile"></dd></div>
+        <div id="c-email-row"><dt>Email</dt><dd id="c-email"></dd></div>
+      </dl>
+      <div class="bc-company" id="c-company"></div>
+    </div>
+  </div>
+
   <noscript>This page needs JavaScript and WebGL.</noscript>
-  <script type="module" src="js/app.js?v=20261124070731"></script>
+  <script type="module" src="js/app.js?v=20261124071151"></script>
 </body>
 </html>
