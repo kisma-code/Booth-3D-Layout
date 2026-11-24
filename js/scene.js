@@ -364,15 +364,27 @@ export function buildWorld(data, renderer) {
 
   // ---------- LED video wall room – drawing p.7 ----------
   {
-    const x0 = 7.75 - 6, x1 = 6, z0 = -3, z1 = -1.4;
-    const side = TX.wallTexture({ wCm: 160, hCm: 250, style: 'white' });
-    const back = TX.wallTexture({ wCm: 425, hCm: 250, style: 'white', door: { xCm: 8, wCm: 90, hCm: 200 } });
-    const room = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, 2.5, z1 - z0), [
-      std({ map: side }), std({ map: side }), M.grey, M.white, M.white, std({ map: back }),
-    ]);
-    room.position.set((x0 + x1) / 2, FLOOR_H + 1.25, (z0 + z1) / 2);
-    scene.add(room);
-    addRect((x0 + x1) / 2, (z0 + z1) / 2, x1 - x0, z1 - z0);
+    const x0 = 7.75 - 6, x1 = 6, z0 = -3, z1 = -1.4, T = 0.08, H = 2.5;
+    // Open-top room built from four 8 cm walls; inside faces are white.
+    const side = std({ map: TX.wallTexture({ wCm: 160, hCm: 250, style: 'white' }) });
+    // Aisle-facing back wall: circuit graphic with brand block (upper right) and a chip (lower left).
+    const backTex = TX.wallTexture({
+      wCm: 425, hCm: 250, style: 'circuit', seed: 41,
+      chip: { x: 0.36, y: 0.66, size: 62, rot: -0.12, label: brand },
+      brand: { text: brand, xCm: 205, yCm: 30, sizeCm: 40, maxW: 190, lines: [data.brand?.company, data.brand?.tagline].filter(Boolean) },
+    });
+    const back = std({ map: backTex, emissive: 0xffffff, emissiveMap: backTex, emissiveIntensity: 0.2 });
+    const y = FLOOR_H + H / 2, W = x1 - x0, D = z1 - z0;
+    const wallBox = (w, d, mats, x, z) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), mats);
+      m.position.set(x, y, z);
+      scene.add(m);
+    };
+    wallBox(W, T, [M.white, M.white, M.white, M.white, M.white, M.white], (x0 + x1) / 2, z1 - T / 2); // LED side
+    wallBox(W, T, [M.white, M.white, M.white, M.white, M.white, back], (x0 + x1) / 2, z0 + T / 2); // aisle side
+    wallBox(T, D - 2 * T, [M.white, side, M.white, M.white, M.white, M.white], x0 + T / 2, (z0 + z1) / 2); // left
+    wallBox(T, D - 2 * T, [side, M.white, M.white, M.white, M.white, M.white], x1 - T / 2, (z0 + z1) / 2); // right
+    addRect((x0 + x1) / 2, (z0 + z1) / 2, W, D);
     const city = TX.cityTexture();
     const led = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 2.5), std({ color: 0x000000, emissive: 0xffffff, emissiveMap: city, emissiveIntensity: 1.0, roughness: 0.4 }));
     led.position.set(x0 + 0.13 + 2.0, FLOOR_H + 1.25, z1 + 0.006);

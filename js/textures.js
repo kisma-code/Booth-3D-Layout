@@ -135,7 +135,7 @@ function paintWhite(ctx, w, h) {
   ctx.fill();
 }
 
-function paintCircuit(ctx, w, h, seed = 7) {
+function paintCircuit(ctx, w, h, seed = 7, chip = null) {
   const r = rng(seed);
   const g = ctx.createLinearGradient(0, 0, w, h);
   g.addColorStop(0, '#06173a');
@@ -169,16 +169,38 @@ function paintCircuit(ctx, w, h, seed = 7) {
     ctx.fillStyle = rg;
     ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
   }
-  // Chip
-  const cw = Math.min(w, h) * 0.32, cx = w * 0.72, cy = h * 0.32;
+  // Chip (position, size and label can be set with `chip`)
+  const cw = chip?.size ?? Math.min(w, h) * 0.32;
+  const cx = (chip?.x ?? 0.72) * w, cy = (chip?.y ?? 0.32) * h;
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.rotate(-0.35);
-  ctx.fillStyle = '#1a1d24';
+  ctx.rotate(chip?.rot ?? -0.35);
+  if (chip) {
+    const glow = ctx.createRadialGradient(0, 0, cw * 0.3, 0, 0, cw * 1.1);
+    glow.addColorStop(0, 'rgba(120,170,255,0.35)');
+    glow.addColorStop(1, 'rgba(120,170,255,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(-cw * 1.2, -cw * 1.2, cw * 2.4, cw * 2.4);
+    // pins
+    ctx.fillStyle = 'rgba(190,200,215,0.8)';
+    for (let i = -4; i <= 4; i++) {
+      ctx.fillRect(i * cw * 0.1 - 0.4, -cw / 2 - 2, 0.8, 2);
+      ctx.fillRect(i * cw * 0.1 - 0.4, cw / 2, 0.8, 2);
+    }
+  }
+  ctx.fillStyle = '#16191f';
   ctx.fillRect(-cw / 2, -cw / 2, cw, cw);
   ctx.strokeStyle = 'rgba(160,200,255,0.6)';
   ctx.lineWidth = 0.4;
   ctx.strokeRect(-cw / 2 + 2, -cw / 2 + 2, cw - 4, cw - 4);
+  if (chip?.label) {
+    const s = fitFont(ctx, chip.label, cw * 0.7, cw * 0.16, '800');
+    setFont(ctx, s, '800');
+    ctx.fillStyle = '#e9edf5';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(chip.label, 0, -cw * 0.05);
+  }
   ctx.restore();
 }
 
@@ -253,7 +275,7 @@ export function wallTexture(opts) {
   const { c, ctx } = makeCanvas(w, h);
   const style = opts.style || 'red';
   if (style === 'white') paintWhite(ctx, w, h);
-  else if (style === 'circuit') paintCircuit(ctx, w, h, opts.seed);
+  else if (style === 'circuit') paintCircuit(ctx, w, h, opts.seed, opts.chip);
   else paintRed(ctx, w, h, opts.seed);
   const ink = style === 'white' ? '#1d1f24' : '#ffffff';
 
