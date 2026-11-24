@@ -483,28 +483,6 @@ export function buildWorld(data, renderer) {
     const mtx = new THREE.Matrix4();
     positions.forEach(([x, z], i) => lamps.setMatrixAt(i, mtx.makeTranslation(x, 11.9, z)));
     scene.add(lamps);
-
-    // Generic neighbour stands (no branding) for context.
-    const neighbours = [
-      [-12, -6, -3, 3], [9, 16, -3, 3],
-      [-10, 1.5, -12, -6], [3.5, 14, -12, -6],
-      [-10, 1.5, 6, 12], [3.5, 14, 6, 12],
-    ];
-    const nMat = std({ color: 0x9da2aa, roughness: 0.7 });
-    const nFloor = std({ color: 0x6d7178, roughness: 0.6 });
-    for (const [xa, xb, za, zb] of neighbours) {
-      const w = xb - xa, d = zb - za, cx = (xa + xb) / 2, cz = (za + zb) / 2;
-      const f = new THREE.Mesh(new THREE.BoxGeometry(w, 0.05, d), nFloor);
-      f.position.set(cx, 0.025, cz);
-      scene.add(f);
-      const bw = new THREE.Mesh(new THREE.BoxGeometry(w * 0.7, 2.5, 0.2), nMat);
-      bw.position.set(cx, 1.25, cz + (cz > 0 ? d / 2 - 0.3 : -d / 2 + 0.3));
-      scene.add(bw);
-      const box = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.0, 0.6), nMat);
-      box.position.set(cx - w * 0.15, 0.5, cz);
-      scene.add(box);
-      addRect(cx, cz, w, d);
-    }
   }
 
   // ---------- Lights ----------
@@ -577,7 +555,7 @@ export function buildWorld(data, renderer) {
     productMeshes,
     viewpointFor,
     update,
-    bounds: { minX: -11, maxX: 8.6, minZ: -5.7, maxZ: 5.7 },
+    bounds: { minX: -10, maxX: 10, minZ: -7, maxZ: 8 },
     floorHeightAt: (x, z) => (x > BOOTH.minX && x < BOOTH.maxX && z > BOOTH.minZ && z < BOOTH.maxZ ? FLOOR_H : 0),
   };
 }
