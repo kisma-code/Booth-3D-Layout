@@ -86,14 +86,15 @@ export function buildWorld(data, renderer) {
     const p = anchorProduct.get(id);
     if (p) makeClickable(obj, p);
   }
-  function tv(id, inch, group, x, y, side) {
+  function tv(id, inch, group, x, y, side, screen = 'plain') {
     const [w, h] = inch === 50 ? [1.11, 0.62] : [0.93, 0.52];
     const p = anchorProduct.get(id);
+    const screenTex = p && screen !== 'plain' ? TX.appScreenTexture(screen, p.nameEn, brand) : TX.screenTexture(p?.nameEn, p?.nameZh, brand);
     const t = new THREE.Group();
     const frame = new THREE.Mesh(new THREE.BoxGeometry(w + 0.03, h + 0.03, 0.045), M.black);
     const scr = new THREE.Mesh(
       new THREE.PlaneGeometry(w, h),
-      std({ color: 0x000000, emissive: 0xffffff, emissiveMap: TX.screenTexture(p?.nameEn, p?.nameZh, brand), emissiveIntensity: 0.75, roughness: 0.25 })
+      std({ color: 0x000000, emissive: 0xffffff, emissiveMap: screenTex, emissiveIntensity: screen === 'plain' ? 0.75 : 0.95, roughness: 0.25 })
     );
     scr.position.z = 0.0231;
     t.add(frame, scr);
@@ -103,11 +104,18 @@ export function buildWorld(data, renderer) {
     register(id, t, new THREE.Vector3(0, 0, side), 2.0);
     return t;
   }
-  function model(id, group, x, y, z, rotY, normalLocal, dist = 1.6) {
+  /** sign: optional { x, z } (model-local) for a small red product sign in front of the model. */
+  function model(id, group, x, y, z, rotY, normalLocal, dist = 1.6, sign = null) {
     const p = anchorProduct.get(id);
     if (!p) return null;
     const obj = buildModel(p.model || ANCHOR_DEFAULT_MODEL[id], { brand });
     if (!obj) return null;
+    if (sign) {
+      const s = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.11), std({ map: TX.signTexture(p.nameEn, p.nameZh), roughness: 0.25 }));
+      s.position.set(sign.x, 0.055, sign.z);
+      s.rotation.x = -0.3;
+      obj.add(s);
+    }
     obj.position.set(x, y, z);
     obj.rotation.y = rotY;
     group.add(obj);
@@ -206,9 +214,8 @@ export function buildWorld(data, renderer) {
       captions: [
         { anchor: 'B_front_tv1', x: 11, w: 108, y: 26, size: 3.6 },
         { anchor: 'B_front_tv2', x: 126, w: 108, y: 26, size: 3.6 },
-        { anchor: 'B_front_glass', x: 250, w: 100, y: 26, size: 3.6 },
+        { anchor: 'B_front_trolley', x: 252, w: 96, y: 34, size: 3.6 },
         { anchor: 'B_front_shelf', x: 126, w: 108, y: 26, size: 3.6 },
-        { anchor: 'B_front_cabinet', x: 30, w: 130, y: 128, size: 3.8 },
       ],
     },
     back: {
@@ -219,27 +226,38 @@ export function buildWorld(data, renderer) {
       ],
     },
     build(g, L) {
-      tv('B_front_tv1', 50, g, -1.75 + 0.65, FLOOR_H + 1.71, 1);
-      tv('B_front_tv2', 50, g, -1.75 + 1.8, FLOOR_H + 1.71, 1);
+      // Front layout follows the booth photo: two app screens, rugged case on the floor,
+      // white cabinet (monitor, small device, laptop, signs), shelf with laptop, steel trolley.
+      tv('B_front_tv1', 50, g, -1.1, FLOOR_H + 1.71, 1, 'aerial');
+      tv('B_front_tv2', 50, g, 0.05, FLOOR_H + 1.71, 1, 'twin');
       tv('B_back_tv1', 42, g, 0.875, FLOOR_H + 1.76, -1);
       tv('B_back_tv2', 42, g, -0.875, FLOOR_H + 1.76, -1);
-      // Cabinet B 75 × 75 × 75
-      const cab = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), M.white);
-      cab.position.set(-0.745, FLOOR_H + 0.375, 0.3 + 0.375);
+      const fwd = new THREE.Vector3(0, 0, 1);
+      // Rugged case on the floor
+      if (model('B_front_floor', g, -0.85, FLOOR_H, 0.54, 0, fwd, 1.6)) addLocalRect(g, -0.85, 0.54, 0.66, 0.44);
+      // White cabinet 80 × 85 × 60 with brand front
+      const cabTop = FLOOR_H + 0.85;
+      const cab = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.85, 0.6), [
+        M.white, M.white, M.white, M.white, std({ map: TX.brandBoxTexture(brand, 80, 85), roughness: 0.45 }), M.white,
+      ]);
+      cab.position.set(-0.1, FLOOR_H + 0.425, 0.6);
       g.add(cab);
-      addLocalRect(g, -0.745, 0.675, 0.75, 0.75);
-      model('B_front_cabinet', g, -0.745, FLOOR_H + 0.75, 0.675, 0, new THREE.Vector3(0, 0, 1));
-      // Front shelf (laptop) at 97 cm
-      const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.32), M.white);
-      shelf.position.set(0.328, FLOOR_H + 0.95, 0.3 + 0.16);
-      g.add(shelf);
-      model('B_front_shelf', g, 0.328, FLOOR_H + 0.97, 0.47, 0, new THREE.Vector3(0, 0, 1), 1.4);
-      // Tall glass case 90 × 165
-      const gc = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.65, 0.6), M.glassDark);
-      gc.position.set(1.3, FLOOR_H + 0.825, 0.3 + 0.3);
-      g.add(gc);
-      addLocalRect(g, 1.3, 0.6, 0.9, 0.6);
-      model('B_front_glass', g, 1.3, FLOOR_H, 0.6, 0, new THREE.Vector3(0, 0, 1), 2.0);
+      addLocalRect(g, -0.1, 0.6, 0.8, 0.6);
+      model('B_front_monitor', g, -0.3, cabTop, 0.5, 0, fwd, 1.5, { x: 0.12, z: 0.2 });
+      model('B_front_cabinet', g, 0.16, cabTop, 0.5, 0, fwd, 1.4, { x: 0.0, z: 0.17 });
+      const closedLaptop = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.02, 0.23), M.black);
+      closedLaptop.position.set(-0.12, cabTop + 0.01, 0.77);
+      closedLaptop.rotation.y = 0.08;
+      g.add(closedLaptop);
+      // Shelf with laptop, on a post that stands on the cabinet
+      const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.03, 0.3), M.white);
+      shelf.position.set(0.52, FLOOR_H + 1.12, 0.45);
+      const shelfPost = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.27, 0.025), M.white);
+      shelfPost.position.set(0.25, cabTop + 0.135, 0.45);
+      g.add(shelf, shelfPost);
+      model('B_front_shelf', g, 0.52, FLOOR_H + 1.135, 0.46, 0, fwd, 1.4);
+      // Steel trolley with sensor enclosure
+      if (model('B_front_trolley', g, 1.3, FLOOR_H, 0.62, 0, fwd, 2.0)) addLocalRect(g, 1.3, 0.62, 0.8, 0.56);
       // Back shelf at 80 cm
       const bshelf = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.04, 0.35), M.white);
       bshelf.position.set(1.25, FLOOR_H + 0.78, -0.3 - 0.175);

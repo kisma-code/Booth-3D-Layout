@@ -10,8 +10,10 @@ export const ANCHORS = [
   { id: 'B_front_tv1', label: 'Wall B front – 50" touch screen (left)' },
   { id: 'B_front_tv2', label: 'Wall B front – 50" TV (right)' },
   { id: 'B_front_shelf', label: 'Wall B front – shelf', model: 'laptop' },
-  { id: 'B_front_cabinet', label: 'Wall B front – small cabinet top', model: 'sensorbox' },
-  { id: 'B_front_glass', label: 'Wall B front – tall glass case', model: 'opencase' },
+  { id: 'B_front_cabinet', label: 'Wall B front – white cabinet top (small device)', model: 'sensorbox' },
+  { id: 'B_front_monitor', label: 'Wall B front – monitor on the white cabinet', model: 'monitor' },
+  { id: 'B_front_floor', label: 'Wall B front – floor, left of the cabinet', model: 'rugged' },
+  { id: 'B_front_trolley', label: 'Wall B front – steel trolley (right)', model: 'trolley' },
   { id: 'B_back_panel', label: 'Wall B back – full wall graphic' },
   { id: 'B_back_tv1', label: 'Wall B back – 42" TV (left)' },
   { id: 'B_back_tv2', label: 'Wall B back – 42" TV (right)' },
@@ -32,6 +34,6 @@ export const ANCHORS = [
 ];
 
 export const MODEL_KINDS = [
-  'switchgear', 'laptop', 'vrlaptop', 'sensorbox', 'opencase', 'devices',
+  'switchgear', 'laptop', 'vrlaptop', 'sensorbox', 'opencase', 'monitor', 'rugged', 'trolley', 'devices',
   'modules', 'transformer', 'container', 'container-hv', 'cabinet',
 ];

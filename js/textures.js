@@ -385,6 +385,103 @@ export function screenTexture(en, zh, brand) {
   return toTexture(c);
 }
 
+/**
+ * App-style screen (looks like a running demo, not a static slide).
+ * variant 'aerial': map card + aerial site view. 'twin': 3D viewer UI with a tower and ground.
+ */
+export function appScreenTexture(variant, title, brand) {
+  const { c, ctx, w, h } = makeCanvas(160, 90, 5);
+  const r = rng(variant === 'aerial' ? 31 : 37);
+  if (variant === 'aerial') {
+    const sky = ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, '#cfe6f5'); sky.addColorStop(0.45, '#e9f1f4'); sky.addColorStop(1, '#b9c6c9');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+    // ground plane with roads and building blocks
+    ctx.fillStyle = '#c9d0cf'; ctx.beginPath(); ctx.moveTo(0, 38); ctx.lineTo(w, 26); ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fill();
+    ctx.strokeStyle = '#8f9796'; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(20, h); ctx.lineTo(120, 30); ctx.moveTo(0, 70); ctx.lineTo(w, 52); ctx.stroke();
+    for (let i = 0; i < 40; i++) {
+      const x = 10 + r() * 140, y = 32 + r() * 45, bw = 4 + r() * 10, bh = 2 + r() * 6;
+      ctx.fillStyle = r() < 0.5 ? '#f4f5f5' : '#dadfe0'; ctx.fillRect(x, y - bh, bw, bh);
+      ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(x + bw, y - bh + 1, 1.2, bh);
+    }
+    for (let i = 0; i < 6; i++) { const x = 70 + r() * 70; ctx.fillStyle = '#c4c8cc'; ctx.fillRect(x, 14 + r() * 8, 1.4, 22); }
+    // trees
+    for (let i = 0; i < 90; i++) {
+      const x = 80 + r() * 85, y = 60 + r() * 35, rad = 2 + r() * 4;
+      ctx.fillStyle = `hsl(${105 + r() * 30}, ${45 + r() * 20}%, ${28 + r() * 18}%)`;
+      ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.fill();
+    }
+    // highlighted route + pins
+    ctx.strokeStyle = 'rgba(60,200,255,0.75)'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(45, 70); ctx.lineTo(95, 55); ctx.lineTo(140, 45); ctx.stroke();
+    for (const [x, y] of [[70, 40], [52, 56], [95, 62], [40, 78]]) {
+      ctx.fillStyle = '#e2142e'; roundRect(ctx, x, y, 20, 3.4, 1.7); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 3, y + 1.4, 12, 0.6);
+    }
+    // title card
+    ctx.fillStyle = 'rgba(255,255,255,0.93)'; roundRect(ctx, 6, 6, 62, 20, 2); ctx.fill();
+    if (title) {
+      const s = fitFont(ctx, title, 56, 5.5, '600');
+      textBlock(ctx, title, 9, 9, 56, s, '#1d1f24', '600', 1.1, 'left');
+    }
+    ctx.fillStyle = '#e2142e'; ctx.fillRect(9, 20, 30, 1);
+    ctx.fillStyle = '#ffffff'; roundRect(ctx, 6, h - 10, 14, 5, 2.5); ctx.fill();
+  } else {
+    ctx.fillStyle = '#f2f3f5'; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, 9);
+    ctx.fillStyle = '#d9dce1'; ctx.fillRect(0, 9, w, 0.3); ctx.fillRect(9, 9, 0.3, h);
+    for (let i = 0; i < 7; i++) { ctx.fillStyle = '#8a93a3'; ctx.fillRect(3, 14 + i * 9, 3, 3); }
+    if (title) textBlock(ctx, title, 12, 2.5, 90, 3.4, '#33373f', '600', 1.1, 'left');
+    // 3D viewport
+    const vx = 13, vy = 13, vw = 142, vh = 72;
+    const sky = ctx.createLinearGradient(0, vy, 0, vy + vh);
+    sky.addColorStop(0, '#f7f8fa'); sky.addColorStop(1, '#e4e7eb');
+    ctx.fillStyle = sky; ctx.fillRect(vx, vy, vw, vh);
+    ctx.fillStyle = '#3f9f55'; ctx.beginPath(); ctx.moveTo(vx, vy + vh); ctx.lineTo(vx + 50, vy + 48); ctx.lineTo(vx + vw, vy + 44); ctx.lineTo(vx + vw, vy + vh); ctx.fill();
+    ctx.fillStyle = '#5fbf72'; ctx.beginPath(); ctx.moveTo(vx + 60, vy + vh); ctx.lineTo(vx + 95, vy + 50); ctx.lineTo(vx + vw, vy + 50); ctx.lineTo(vx + vw, vy + vh); ctx.fill();
+    // building + structures
+    ctx.fillStyle = '#9aa1a8'; ctx.fillRect(vx + 6, vy + 18, 38, 32);
+    ctx.strokeStyle = '#6f777f'; ctx.lineWidth = 0.4;
+    for (let x = vx + 8; x < vx + 44; x += 4) { ctx.beginPath(); ctx.moveTo(x, vy + 18); ctx.lineTo(x, vy + 50); ctx.stroke(); }
+    // lattice tower
+    ctx.strokeStyle = '#4b525a'; ctx.lineWidth = 0.45;
+    const tx = vx + 78;
+    ctx.beginPath(); ctx.moveTo(tx - 5, vy + 50); ctx.lineTo(tx - 1, vy + 4); ctx.lineTo(tx + 1, vy + 4); ctx.lineTo(tx + 5, vy + 50); ctx.stroke();
+    for (let y = vy + 8; y < vy + 50; y += 4) { const k = (y - vy - 4) / 46 * 4; ctx.beginPath(); ctx.moveTo(tx - 1 - k, y); ctx.lineTo(tx + 1 + k, y + 4); ctx.moveTo(tx + 1 + k, y); ctx.lineTo(tx - 1 - k, y + 4); ctx.stroke(); }
+    for (let i = 0; i < 10; i++) { const x = vx + 92 + r() * 45; ctx.fillStyle = '#b4bac1'; ctx.fillRect(x, vy + 30 + r() * 10, 1, 14); ctx.fillStyle = '#d6b84a'; ctx.fillRect(x - 3, vy + 34 + r() * 4, 7, 0.7); }
+    for (const [x, y] of [[vx + 70, vy + 60], [vx + 100, vy + 64], [vx + 120, vy + 58]]) { ctx.fillStyle = '#e2142e'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 4, y + 1.5); ctx.lineTo(x, y + 3); ctx.fill(); }
+  }
+  return toTexture(c);
+}
+
+/** Small red acrylic product sign. */
+export function signTexture(en, zh) {
+  const { c, ctx, w, h } = makeCanvas(26, 11, 16);
+  ctx.fillStyle = '#d4001f'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillRect(0, 0, w, 0.5);
+  let y = 2;
+  // English name in at most two lines, then the Chinese name.
+  if (en) y = textBlock(ctx, en, w / 2, 1.6, w - 2, fitFont(ctx, en, (w - 2) * 1.9, 1.75, '700'), '#ffffff', '700', 1.12);
+  if (zh) textBlock(ctx, zh, w / 2, y + 0.2, w - 2, fitFont(ctx, zh, w - 2, 1.6, '600'), '#ffffff', '600', 1.1);
+  return toTexture(c);
+}
+
+/** White cabinet front with the brand name in red and a key lock. */
+export function brandBoxTexture(brand, wCm, hCm) {
+  const { c, ctx, w, h } = makeCanvas(wCm, hCm, 6);
+  ctx.fillStyle = '#f5f5f5'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 0.3; ctx.strokeRect(4, 6, w - 8, h - 9);
+  if (brand) {
+    const s = fitFont(ctx, brand, w * 0.75, 13, '800');
+    setFont(ctx, s, '800');
+    ctx.fillStyle = BRAND_RED; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(brand, w / 2, h * 0.32);
+  }
+  ctx.fillStyle = '#b9bcc0'; ctx.beginPath(); ctx.arc(w - 8, 9, 1.2, 0, 7); ctx.fill();
+  return toTexture(c);
+}
+
 /** Ring sign: white band with the brand name twice. */
 export function ringTexture(brand) {
   const c = document.createElement('canvas');

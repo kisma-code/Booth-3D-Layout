@@ -297,9 +297,76 @@ const builders = {
     g.add(hs, strap);
   },
   sensorbox(g) {
-    g.add(box(0.3, 0.15, 0.15, dark()));
-    g.add(box(0.2, 0.06, 0.004, m('lcd', { color: 0x223, emissive: 0x3a5a7a, emissiveIntensity: 0.7 }), -0.03, 0.06, 0.076));
-    for (let i = 0; i < 3; i++) g.add(box(0.012, 0.012, 0.004, green(), 0.1, 0.03 + i * 0.03, 0.076));
+    // Small white monitoring unit with a top grille
+    const body = m('sbody', { color: 0xeeeeec, roughness: 0.45, metalness: 0.1 });
+    g.add(box(0.24, 0.12, 0.16, body));
+    for (let i = 0; i < 6; i++) g.add(box(0.012, 0.002, 0.1, dark(), -0.07 + i * 0.028, 0.12, 0));
+    g.add(box(0.1, 0.05, 0.003, m('sface', { color: 0xd6d8db, roughness: 0.4 }), -0.05, 0.035, 0.081));
+    for (let i = 0; i < 2; i++) g.add(box(0.01, 0.01, 0.004, green(), 0.07 + i * 0.022, 0.08, 0.081));
+  },
+  monitor(g) {
+    const blk = m('mon', { color: 0x15161a, roughness: 0.4, metalness: 0.3 });
+    g.add(box(0.22, 0.012, 0.16, blk));
+    g.add(box(0.035, 0.16, 0.025, blk, 0, 0.012, -0.04));
+    const head = new THREE.Group();
+    head.position.set(0, 0.11, -0.02);
+    head.rotation.x = -0.08;
+    head.add(box(0.54, 0.33, 0.03, blk));
+    head.add(box(0.51, 0.3, 0.002, m('monScr', { color: 0x0b0c0f, emissive: 0x1a2433, emissiveIntensity: 0.6, roughness: 0.15 }), 0, 0.015, 0.016));
+    g.add(head);
+  },
+  rugged(g) {
+    // Black rugged transport case with wheels and handle
+    const shell = m('rug', { color: 0x1a1b1e, roughness: 0.55, metalness: 0.1 });
+    const rib = m('rugRib', { color: 0x26282c, roughness: 0.5 });
+    g.add(box(0.66, 0.46, 0.44, shell, 0, 0.03, 0));
+    g.add(box(0.67, 0.025, 0.45, rib, 0, 0.36, 0));
+    for (let i = 0; i < 4; i++) g.add(box(0.6, 0.012, 0.03, rib, 0, 0.49, -0.15 + i * 0.1));
+    for (const x of [-0.22, 0.22]) g.add(box(0.06, 0.08, 0.02, m('latch', { color: 0x3a3c41, roughness: 0.4, metalness: 0.4 }), x, 0.31, 0.225));
+    g.add(box(0.2, 0.025, 0.04, rib, 0, 0.22, 0.24));
+    for (const x of [-0.11, 0.11]) g.add(box(0.025, 0.06, 0.04, rib, x, 0.19, 0.24));
+    g.add(box(0.12, 0.05, 0.003, m('rugLabel', { color: 0xe8e8e8, roughness: 0.6 }), -0.12, 0.12, 0.221));
+    for (const x of [-0.29, 0.29]) g.add(tube(0.035, 0.04, rib, 'x', x, 0.035, -0.17));
+  },
+  trolley(g, { brand }) {
+    // Stainless steel frame on castors with a wall-mount sensor enclosure
+    const ss = m('ss', { color: 0xbfc3c8, roughness: 0.28, metalness: 0.85 });
+    const tray = box(0.8, 0.03, 0.56, ss, 0, 0.12, 0);
+    g.add(tray);
+    for (const [x, z] of [[-0.36, -0.24], [0.36, -0.24], [-0.36, 0.24], [0.36, 0.24]]) {
+      g.add(tube(0.045, 0.03, dark(), 'x', x, 0.05, z));
+      g.add(box(0.03, 0.03, 0.04, red(), x + 0.03, 0.06, z + 0.03));
+      g.add(box(0.03, 0.03, 0.03, ss, x, 0.08, z));
+    }
+    const post = (x, z, h = 1.55) => g.add(box(0.035, h, 0.035, ss, x, 0.15, z));
+    post(-0.36, -0.05); post(0.36, -0.05); post(-0.2, -0.05, 1.45);
+    g.add(box(0.76, 0.035, 0.035, ss, 0, 1.68, -0.05));
+    g.add(box(0.76, 0.035, 0.035, ss, 0, 0.62, -0.05));
+    // mounting clamps on the inner post
+    for (const y of [1.32, 0.86]) {
+      g.add(box(0.14, 0.09, 0.08, m('clamp', { color: 0x9a9fa6, roughness: 0.35, metalness: 0.7 }), -0.22, y, 0.0));
+      g.add(box(0.05, 0.05, 0.1, m('clamp', {}), -0.13, y + 0.02, 0.0));
+    }
+    // sensor enclosure
+    const enc = texMat(paintTexture(38, 88, (c, w, h) => {
+      c.fillStyle = '#efefee'; c.fillRect(0, 0, w, h);
+      c.strokeStyle = 'rgba(0,0,0,0.15)'; c.lineWidth = 0.3; c.strokeRect(1, 1, w - 2, h - 2);
+      if (brand) text(c, brand, 7.5, 4, 2.2, '#1d1f24', '800', 'center');
+      c.fillStyle = '#d6d8db'; c.fillRect(20, 2.5, 14, 3);
+      [['#e3262f', 46], ['#f2b705', 50], ['#2fae5a', 54], ['#2f6fd6', 58]].forEach(([col, y]) => {
+        c.fillStyle = '#cfd1d4'; c.fillRect(4.5, y - 1.7, 4, 3.4);
+        c.fillStyle = col; c.beginPath(); c.arc(6.5, y, 1.2, 0, 7); c.fill();
+      });
+      c.fillStyle = '#c3c6ca'; c.fillRect(w - 2.5, 8, 1.2, 10); c.fillRect(w - 2.5, h - 20, 1.2, 10);
+    }, 8));
+    const encBody = m('enc', { color: 0xececeb, roughness: 0.45 });
+    g.add(faceBox(0.38, 0.88, 0.16, encBody, enc, 0.1, 0.78, 0.0));
+    // hose + pump unit + sample tank on the tray
+    g.add(cyl(0.012, 0.6, m('hose', { color: 0x111214, roughness: 0.6 }), 0.16, 0.18, 0.05, 10));
+    g.add(faceBox(0.36, 0.17, 0.22, m('pump', { color: 0xe9eaec, roughness: 0.4 }), m('pumpF', { color: 0xdedfe2, roughness: 0.4 }), 0.15, 0.15, 0.12));
+    g.add(tube(0.05, 0.12, ss, 'x', -0.07, 0.24, 0.12));
+    g.add(box(0.3, 0.14, 0.26, ss, -0.2, 0.15, -0.12));
+    g.add(box(0.14, 0.05, 0.12, m('wood', { color: 0x9a6b3c, roughness: 0.8 }), 0.25, 0.15, -0.18));
   },
   opencase(g) {
     g.add(box(0.6, 0.6, 0.45, white()));
