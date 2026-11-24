@@ -120,17 +120,34 @@ async function start(data, isPreview = false) {
   if (isPreview) $('#preview-badge').hidden = false;
 
   const list = $('#product-list');
+  // Grouped by BU (A–Z, no BU last); each row is tinted with its BU tag colour.
+  const groups = new Map();
   for (const p of products) {
     if (!world.productMeshes.has(p.id)) continue;
-    const li = document.createElement('li');
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.innerHTML = `<span class="en"></span><span class="zh"></span>`;
-    b.querySelector('.en').textContent = p.nameEn;
-    b.querySelector('.zh').textContent = p.nameZh || '';
-    b.addEventListener('click', () => goTo(p.id));
-    li.appendChild(b);
-    list.appendChild(li);
+    const bu = String(p.bu || '').trim().toUpperCase();
+    if (!groups.has(bu)) groups.set(bu, []);
+    groups.get(bu).push(p);
+  }
+  const buOrder = [...groups.keys()].sort((a, b) => (!a) - (!b) || a.localeCompare(b));
+  for (const bu of buOrder) {
+    const color = bu ? buColor(bu) : '#a9adb6';
+    const head = document.createElement('li');
+    head.className = 'bu-head';
+    head.style.setProperty('--bu', color);
+    head.textContent = bu || 'Other';
+    list.appendChild(head);
+    for (const p of groups.get(bu)) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.style.setProperty('--bu', color);
+      b.innerHTML = `<span class="en"></span><span class="zh"></span>`;
+      b.querySelector('.en').textContent = p.nameEn;
+      b.querySelector('.zh').textContent = p.nameZh || '';
+      b.addEventListener('click', () => goTo(p.id));
+      li.appendChild(b);
+      list.appendChild(li);
+    }
   }
 
   // ---------- state + overlays ----------

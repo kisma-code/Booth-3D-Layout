@@ -72,9 +72,14 @@ body.touch #hint { left: 160px; right: 12px; transform: none; white-space: norma
 #drawer { top: 12px; right: 12px; bottom: 12px; width: min(380px, calc(100% - 24px)); border-radius: 16px; display: flex; flex-direction: column; }
 #drawer header { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 8px 20px; border-bottom: 1px solid var(--line); }
 #drawer h2 { margin: 0; font-size: 18px; }
-#product-list { list-style: none; margin: 0; padding: 8px; overflow: auto; }
-#product-list button { width: 100%; text-align: left; background: transparent; color: var(--ink); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; font-weight: 600; border-radius: 10px; }
-#product-list button:hover { background: rgba(255, 255, 255, 0.07); }
+#product-list { list-style: none; margin: 0; padding: 4px 10px 12px; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
+#product-list .bu-head { --bu: #a9adb6; margin: 12px 4px 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--bu); display: flex; align-items: center; gap: 8px; }
+#product-list .bu-head::after { content: ""; flex: 1; height: 1px; background: color-mix(in srgb, var(--bu) 35%, transparent); }
+#product-list button {
+  --bu: #a9adb6; width: 100%; text-align: left; color: var(--ink); padding: 10px 12px 10px 14px; display: flex; flex-direction: column; gap: 2px; font-weight: 600; border-radius: 10px;
+  background: color-mix(in srgb, var(--bu) 14%, transparent); border-left: 3px solid var(--bu);
+}
+#product-list button:hover { background: color-mix(in srgb, var(--bu) 26%, transparent); }
 #product-list .zh { font-weight: 400; font-size: 13px; color: var(--muted); }
 
 #panel { right: 16px; top: 50%; transform: translateY(-50%); width: min(420px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow: auto; border-radius: 16px; padding: 24px; border-top: 4px solid var(--red); }
