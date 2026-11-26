@@ -172,7 +172,6 @@ function renderMode() {
 // ---------- render ----------
 function renderAll() {
   renderMeta();
-  renderZones();
   renderProducts();
   renderAnchors();
 }
@@ -188,26 +187,6 @@ function renderMeta() {
     field('Company line', data.brand, 'company'),
     field('Tagline', data.brand, 'tagline'),
   );
-}
-
-const ZONE_LABELS = {
-  A_front: 'Wall A front', A_back: 'Wall A back', B_front: 'Wall B front',
-  B_back: 'Wall B back', C_front: 'Wall C front', C_back: 'Wall C back',
-};
-function renderZones() {
-  const box = $('#zones');
-  box.replaceChildren();
-  for (const [id, label] of Object.entries(ZONE_LABELS)) {
-    const z = (data.zones[id] ||= { title: '' });
-    const row = el('div', { class: 'zone' }, el('code', {}, label), field('Title', z, 'title'), field('Subtitle', z, 'subtitle'));
-    box.append(row);
-    if (id === 'B_back') {
-      const proxy = { rows: (z.rows || []).join('\n') };
-      const rows = field('Diagram rows (one per line)', proxy, 'rows', { textarea: true });
-      rows.querySelector('textarea').addEventListener('input', () => { z.rows = proxy.rows.split('\n').map((s) => s.trim()).filter(Boolean); });
-      box.append(el('div', { class: 'zone' }, el('span'), rows, el('span')));
-    }
-  }
 }
 
 function slug(s) {
